@@ -133,7 +133,7 @@ function getActiveKyungDiscount() {
   return parseInt(kyungDiscountSelect.value, 10) || 0;
 }
 
-function updatePreview() {
+function updatePreview(activeInputKey = null, activeCursorStart = null) {
   updateDefaultDiscountRate();
   toggleModeOptions();
 
@@ -205,15 +205,37 @@ function updatePreview() {
 
   // Add Event Listeners for editable price inputs in table
   tableBody.querySelectorAll('input.price-input').forEach(inputEl => {
-    inputEl.addEventListener('input', (e) => {
-      const key = e.target.getAttribute('data-key');
+    const key = inputEl.getAttribute('data-key');
+
+    const handlePriceChange = (e) => {
       const val = parseInt(e.target.value, 10);
       if (!isNaN(val)) {
         userCustomPrices[key] = val;
-        updatePreview();
+      } else if (e.target.value === '') {
+        userCustomPrices[key] = 0;
       }
-    });
+      const pos = e.target.selectionStart;
+      updatePreview(key, pos);
+    };
+
+    inputEl.addEventListener('input', handlePriceChange);
+    inputEl.addEventListener('change', handlePriceChange);
   });
+
+  // Restore Focus and Cursor Position if user was typing in a price input
+  if (activeInputKey) {
+    const targetEl = tableBody.querySelector(`input.price-input[data-key="${activeInputKey}"]`);
+    if (targetEl) {
+      targetEl.focus();
+      if (activeCursorStart !== null && targetEl.setSelectionRange) {
+        try {
+          targetEl.setSelectionRange(activeCursorStart, activeCursorStart);
+        } catch (err) {
+          // ignore selection range errors for number input types
+        }
+      }
+    }
+  }
 
   // Update Detailed Breakdown
   if (calc.type === '경인쇄') {
@@ -240,8 +262,8 @@ function updatePreview() {
 
 // Event Listeners for Live Update
 [customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, optEpoxyCheck, optFoilCheck].forEach(el => {
-  el.addEventListener('input', updatePreview);
-  el.addEventListener('change', updatePreview);
+  el.addEventListener('input', () => updatePreview());
+  el.addEventListener('change', () => updatePreview());
 });
 
 document.querySelectorAll('input[name="printType"]').forEach(el => {

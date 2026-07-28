@@ -8,6 +8,8 @@ const dateInput = document.getElementById('dateStr');
 const titleInput = document.getElementById('title');
 const quantityInput = document.getElementById('quantity');
 const pagesInput = document.getElementById('pages');
+const coverPaperInput = document.getElementById('coverPaper');
+const innerPaperInput = document.getElementById('innerPaper');
 const discountRateInput = document.getElementById('discountRate');
 
 const kyungDiscountSelect = document.getElementById('kyungDiscount');
@@ -48,6 +50,9 @@ function getSelectedRadioValue(name) {
 
 let lastType = '';
 let lastSize = '';
+
+// 사용자가 수동 수정한 단가 기억 객체
+const userCustomPrices = {};
 
 const kyungOptionsMap = {
   '10절': [
@@ -137,6 +142,8 @@ function updatePreview() {
   const title = titleInput.value.trim();
   const quantity = parseInt(quantityInput.value, 10) || 1;
   const pages = parseInt(pagesInput.value, 10) || 1;
+  const coverPaper = coverPaperInput.value.trim() || '아트250';
+  const innerPaper = innerPaperInput.value.trim() || '미색80';
   const type = getSelectedRadioValue('printType');
   const size = getSelectedRadioValue('printSize');
   const discountRate = parseInt(discountRateInput.value, 10) || 100;
@@ -156,12 +163,15 @@ function updatePreview() {
     dateStr,
     quantity,
     pages,
+    coverPaper,
+    innerPaper,
     discountRate,
     kyungDiscount,
     overheadRate,
     profitRate,
     optEpoxy,
-    optFoil
+    optFoil,
+    customPrices: userCustomPrices
   });
 
   // Update Summary Cards
@@ -177,13 +187,32 @@ function updatePreview() {
     const qtyText = item.unit ? `${item.qty} ${item.unit}` : `${item.qty}`;
     const noteHtml = item.note ? `<span class="item-note">(${item.note})</span>` : '';
 
+    let priceCellHtml = '';
+    if (calc.type === '옵셋' && item.editable) {
+      priceCellHtml = `<input type="number" class="price-input" data-key="${item.key}" value="${item.unitPrice}" min="0" step="100" />`;
+    } else {
+      priceCellHtml = item.unitPrice ? formatCurrency(item.unitPrice) : '-';
+    }
+
     tr.innerHTML = `
       <td>${item.name} ${noteHtml}</td>
       <td class="text-right">${qtyText}</td>
-      <td class="text-right">${item.unitPrice ? formatCurrency(item.unitPrice) : '-'}</td>
+      <td class="text-right">${priceCellHtml}</td>
       <td class="text-right">${formatCurrency(item.amount)}</td>
     `;
     tableBody.appendChild(tr);
+  });
+
+  // Add Event Listeners for editable price inputs in table
+  tableBody.querySelectorAll('input.price-input').forEach(inputEl => {
+    inputEl.addEventListener('input', (e) => {
+      const key = e.target.getAttribute('data-key');
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val)) {
+        userCustomPrices[key] = val;
+        updatePreview();
+      }
+    });
   });
 
   // Update Detailed Breakdown
@@ -210,7 +239,7 @@ function updatePreview() {
 }
 
 // Event Listeners for Live Update
-[customerInput, dateInput, titleInput, quantityInput, pagesInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, optEpoxyCheck, optFoilCheck].forEach(el => {
+[customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, optEpoxyCheck, optFoilCheck].forEach(el => {
   el.addEventListener('input', updatePreview);
   el.addEventListener('change', updatePreview);
 });
@@ -238,6 +267,8 @@ btnDownload.addEventListener('click', async () => {
   const title = titleInput.value.trim();
   const quantity = parseInt(quantityInput.value, 10) || 1;
   const pages = parseInt(pagesInput.value, 10) || 1;
+  const coverPaper = coverPaperInput.value.trim() || '아트250';
+  const innerPaper = innerPaperInput.value.trim() || '미색80';
   const type = getSelectedRadioValue('printType');
   const size = getSelectedRadioValue('printSize');
   const discountRate = parseInt(discountRateInput.value, 10) || 100;
@@ -260,12 +291,15 @@ btnDownload.addEventListener('click', async () => {
       dateStr,
       quantity,
       pages,
+      coverPaper,
+      innerPaper,
       discountRate,
       kyungDiscount,
       overheadRate,
       profitRate,
       optEpoxy,
-      optFoil
+      optFoil,
+      customPrices: userCustomPrices
     });
   } catch (err) {
     alert('엑셀 다운로드 중 오류가 발생했습니다: ' + err.message);

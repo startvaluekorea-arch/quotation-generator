@@ -81,7 +81,6 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
         openTag = openTag.replace(/hidden="[^"]*"/, 'hidden="1"');
       }
     } else {
-      // 숨김 해제: hidden 속성 제거
       openTag = openTag.replace(/\s*hidden="[^"]*"/, '');
     }
     return sheetXml.replace(rowRegex, openTag);
@@ -93,7 +92,24 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
  * 선택된 조건에 맞는 원본 엑셀 템플릿을 읽어 입력을 주입한 후 손상 없이 다운로드
  */
 export async function downloadExcelQuotation(params) {
-  const { type, size, customerName, title, dateStr, quantity, pages, discountRate = 85, kyungDiscount = 3500, overheadRate = 10, profitRate = 20, optEpoxy = false, optFoil = false } = params;
+  const {
+    type,
+    size,
+    customerName,
+    title,
+    dateStr,
+    quantity,
+    pages,
+    discountRate = 85,
+    kyungDiscount = 3500,
+    overheadRate = 10,
+    profitRate = 20,
+    optEpoxy = false,
+    optFoil = false,
+    coverPaper = '아트250',
+    innerPaper = '미색80',
+    customPrices = {}
+  } = params;
 
   let filename = '';
   if (type === '경인쇄') {
@@ -173,6 +189,15 @@ export async function downloadExcelQuotation(params) {
     sheetXml = updateCellInSheetXml(sheetXml, 'G10', numQuantity, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'L13', numPages, false);
 
+    // H12: 표지 종이 종류 (예: 아트250)
+    if (coverPaper) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H12', coverPaper, true);
+    }
+    // H13: 내지 종이 종류 (예: 미색80)
+    if (innerPaper) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H13', innerPaper, true);
+    }
+
     // B20, B21: 항목 명칭 변경 ('표지 디자인', '내지 조판비')
     sheetXml = updateCellInSheetXml(sheetXml, 'B20', '표지 디자인', true);
     sheetXml = updateCellInSheetXml(sheetXml, 'B21', '내지 조판비', true);
@@ -183,6 +208,44 @@ export async function downloadExcelQuotation(params) {
 
     // L18: H12 셀을 참조하도록 수식 설정 (=H12)
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'L18', 'H12');
+
+    // 사용자가 수정한 각 항목 단가(H18 ~ H30) 주입
+    if (customPrices.coverPaperPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H18', Number(customPrices.coverPaperPrice), false);
+    }
+    if (customPrices.innerPaperPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H19', Number(customPrices.innerPaperPrice), false);
+    }
+    if (customPrices.coverDesignPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H20', Number(customPrices.coverDesignPrice), false);
+    }
+    if (customPrices.innerTypePrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H21', Number(customPrices.innerTypePrice), false);
+    }
+    if (customPrices.coverPlatePrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H22', Number(customPrices.coverPlatePrice), false);
+    }
+    if (customPrices.innerPlatePrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H23', Number(customPrices.innerPlatePrice), false);
+    }
+    if (customPrices.coverPrintPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H24', Number(customPrices.coverPrintPrice), false);
+    }
+    if (customPrices.innerPrintPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H25', Number(customPrices.innerPrintPrice), false);
+    }
+    if (customPrices.bindingPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H26', Number(customPrices.bindingPrice), false);
+    }
+    if (customPrices.epoxyPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H27', Number(customPrices.epoxyPrice), false);
+    }
+    if (customPrices.foilPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H28', Number(customPrices.foilPrice), false);
+    }
+    if (customPrices.coatingPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'H30', Number(customPrices.coatingPrice), false);
+    }
 
     // 27행: 에폭시 옵션 제어 (선택 시 숨김 해제 및 수량 1, 미선택 시 숨김 유지 및 수량 0)
     sheetXml = setRowHiddenInSheetXml(sheetXml, 27, !optEpoxy);

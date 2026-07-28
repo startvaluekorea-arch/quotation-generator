@@ -76,6 +76,19 @@
             </div>
           </div>
 
+          <!-- 종이 재질 종류 설정 (표지 & 내지) -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="coverPaper">표지 종이 종류 <span class="unit">(H12)</span></label>
+              <input type="text" id="coverPaper" placeholder="예: 아트250" value="아트250" />
+            </div>
+
+            <div class="form-group">
+              <label for="innerPaper">내지 종이 종류 <span class="unit">(H13)</span></label>
+              <input type="text" id="innerPaper" placeholder="예: 미색80" value="미색80" />
+            </div>
+          </div>
+
           <!-- 인쇄 방식 선택 -->
           <div class="form-group">
             <label>인쇄 방식 <span class="required">*</span></label>
@@ -205,7 +218,7 @@
               <tr>
                 <th>항목 / 세부내역</th>
                 <th class="text-right">수량 / 규격</th>
-                <th class="text-right">단가 (원)</th>
+                <th class="text-right">단가 (원) <span class="unit" style="font-weight: normal; color: var(--accent-light);">(수정 가능)</span></th>
                 <th class="text-right">금액 (원)</th>
               </tr>
             </thead>

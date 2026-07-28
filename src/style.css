@@ -293,6 +293,12 @@ select.form-select:focus {
   border: 1px solid transparent;
 }
 
+.segment-label.center-align {
+  justify-content: center;
+  align-items: center;
+  min-height: 48px;
+}
+
 .radio-title {
   font-weight: 600;
   font-size: 0.9rem;

@@ -133,7 +133,85 @@ function getActiveKyungDiscount() {
   return parseInt(kyungDiscountSelect.value, 10) || 0;
 }
 
-function updatePreview(activeInputKey = null, activeCursorStart = null) {
+/**
+ * 계산 결과를 기반으로 요약 카드 및 세부 Breakdown만 빠르게 갱신 (테이블 DOM 유지)
+ */
+function updateSummaryAndBreakdownOnly() {
+  const customerName = customerInput.value.trim();
+  const dateStr = dateInput.value;
+  const title = titleInput.value.trim();
+  const quantity = parseInt(quantityInput.value, 10) || 1;
+  const pages = parseInt(pagesInput.value, 10) || 1;
+  const coverPaper = coverPaperInput.value.trim() || '아트250';
+  const innerPaper = innerPaperInput.value.trim() || '미색80';
+  const type = getSelectedRadioValue('printType');
+  const size = getSelectedRadioValue('printSize');
+  const discountRate = parseInt(discountRateInput.value, 10) || 100;
+  const kyungDiscount = getActiveKyungDiscount();
+  const overheadRate = parseInt(overheadRateInput.value, 10) || 0;
+  const profitRate = parseInt(profitRateInput.value, 10) || 0;
+  const optEpoxy = optEpoxyCheck.checked;
+  const optFoil = optFoilCheck.checked;
+
+  const calc = calculateQuotation({
+    type,
+    size,
+    customerName,
+    title,
+    dateStr,
+    quantity,
+    pages,
+    coverPaper,
+    innerPaper,
+    discountRate,
+    kyungDiscount,
+    overheadRate,
+    profitRate,
+    optEpoxy,
+    optFoil,
+    customPrices: userCustomPrices
+  });
+
+  // Update Summary Cards
+  grandTotalEl.textContent = formatCurrency(calc.grandTotal);
+  supplyPriceEl.textContent = formatCurrency(calc.supplyPrice);
+  vatEl.textContent = formatCurrency(calc.vat);
+
+  // Update Item Amount Texts in Table without destroying Inputs
+  calc.items.forEach(item => {
+    const amountTd = tableBody.querySelector(`td[data-amount-key="${item.key}"]`);
+    if (amountTd) {
+      amountTd.textContent = formatCurrency(item.amount);
+    }
+  });
+
+  // Update Detailed Breakdown
+  if (calc.type === '경인쇄') {
+    breakdownContainer.innerHTML = `
+      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+      <div class="breakdown-row"><span>이윤 (적용):</span><span>${formatCurrency(calc.totalMargin)}</span></div>
+      <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+    `;
+  } else {
+    breakdownContainer.innerHTML = `
+      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+      <div class="breakdown-row"><span>일반관리비 (${overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
+      <div class="breakdown-row"><span>이윤 (${profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
+      <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
+      <div class="breakdown-row"><span>할인/네고 적용금액 (${discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
+      <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+    `;
+  }
+}
+
+/**
+ * 전체 프리뷰 표 및 컨트롤 업데이트 (항목 구성이나 인쇄방식 변경 시 호출)
+ */
+function updateFullPreview() {
   updateDefaultDiscountRate();
   toggleModeOptions();
 
@@ -179,7 +257,7 @@ function updatePreview(activeInputKey = null, activeCursorStart = null) {
   supplyPriceEl.textContent = formatCurrency(calc.supplyPrice);
   vatEl.textContent = formatCurrency(calc.vat);
 
-  // Update Table Body
+  // Re-render Table Body
   tableBody.innerHTML = '';
   calc.items.forEach(item => {
     const tr = document.createElement('tr');
@@ -189,7 +267,7 @@ function updatePreview(activeInputKey = null, activeCursorStart = null) {
 
     let priceCellHtml = '';
     if (calc.type === '옵셋' && item.editable) {
-      priceCellHtml = `<input type="number" class="price-input" data-key="${item.key}" value="${item.unitPrice}" min="0" step="100" />`;
+      priceCellHtml = `<input type="text" inputmode="numeric" class="price-input" data-key="${item.key}" value="${item.unitPrice}" />`;
     } else {
       priceCellHtml = item.unitPrice ? formatCurrency(item.unitPrice) : '-';
     }
@@ -198,44 +276,30 @@ function updatePreview(activeInputKey = null, activeCursorStart = null) {
       <td>${item.name} ${noteHtml}</td>
       <td class="text-right">${qtyText}</td>
       <td class="text-right">${priceCellHtml}</td>
-      <td class="text-right">${formatCurrency(item.amount)}</td>
+      <td class="text-right" data-amount-key="${item.key}">${formatCurrency(item.amount)}</td>
     `;
     tableBody.appendChild(tr);
   });
 
-  // Add Event Listeners for editable price inputs in table
+  // Bind Event Listeners on price inputs ONCE during table creation
   tableBody.querySelectorAll('input.price-input').forEach(inputEl => {
     const key = inputEl.getAttribute('data-key');
 
-    const handlePriceChange = (e) => {
-      const val = parseInt(e.target.value, 10);
-      if (!isNaN(val)) {
-        userCustomPrices[key] = val;
-      } else if (e.target.value === '') {
+    inputEl.addEventListener('input', (e) => {
+      // 숫자만 추출
+      const rawVal = e.target.value.replace(/[^0-9]/g, '');
+      const numVal = parseInt(rawVal, 10);
+      
+      if (!isNaN(numVal)) {
+        userCustomPrices[key] = numVal;
+      } else {
         userCustomPrices[key] = 0;
       }
-      const pos = e.target.selectionStart;
-      updatePreview(key, pos);
-    };
-
-    inputEl.addEventListener('input', handlePriceChange);
-    inputEl.addEventListener('change', handlePriceChange);
+      
+      // 입력 중에도 요약 카드 및 해당 행 금액 인라인 갱신 (입력창 DOM은 절대 건드리지 않음!)
+      updateSummaryAndBreakdownOnly();
+    });
   });
-
-  // Restore Focus and Cursor Position if user was typing in a price input
-  if (activeInputKey) {
-    const targetEl = tableBody.querySelector(`input.price-input[data-key="${activeInputKey}"]`);
-    if (targetEl) {
-      targetEl.focus();
-      if (activeCursorStart !== null && targetEl.setSelectionRange) {
-        try {
-          targetEl.setSelectionRange(activeCursorStart, activeCursorStart);
-        } catch (err) {
-          // ignore selection range errors for number input types
-        }
-      }
-    }
-  }
 
   // Update Detailed Breakdown
   if (calc.type === '경인쇄') {
@@ -260,16 +324,20 @@ function updatePreview(activeInputKey = null, activeCursorStart = null) {
   }
 }
 
-// Event Listeners for Live Update
-[customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, optEpoxyCheck, optFoilCheck].forEach(el => {
-  el.addEventListener('input', () => updatePreview());
-  el.addEventListener('change', () => updatePreview());
+// Form Event Listeners for Full Preview Update
+[customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput].forEach(el => {
+  el.addEventListener('input', updateFullPreview);
+  el.addEventListener('change', updateFullPreview);
+});
+
+[optEpoxyCheck, optFoilCheck].forEach(el => {
+  el.addEventListener('change', updateFullPreview);
 });
 
 document.querySelectorAll('input[name="printType"]').forEach(el => {
   el.addEventListener('change', () => {
     updateDefaultDiscountRate();
-    updatePreview();
+    updateFullPreview();
   });
 });
 
@@ -278,7 +346,7 @@ document.querySelectorAll('input[name="printSize"]').forEach(el => {
     const size = getSelectedRadioValue('printSize');
     populateKyungDiscountOptions(size);
     updateDefaultDiscountRate();
-    updatePreview();
+    updateFullPreview();
   });
 });
 
@@ -334,4 +402,4 @@ btnDownload.addEventListener('click', async () => {
 
 // Initial Setup
 populateKyungDiscountOptions(getSelectedRadioValue('printSize'));
-updatePreview();
+updateFullPreview();

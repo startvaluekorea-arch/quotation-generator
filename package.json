@@ -1,0 +1,21 @@
+{
+  "name": "quotation-generator",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "docker:up": "powershell -Command \"& 'C:\\Users\\fkore\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe' compose up -d --build\"",
+    "docker:down": "powershell -Command \"& 'C:\\Users\\fkore\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe' compose down\"",
+    "docker:logs": "powershell -Command \"& 'C:\\Users\\fkore\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe' compose logs -f\""
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

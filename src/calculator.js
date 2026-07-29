@@ -254,6 +254,7 @@ export function calculateDigital(params) {
     optDigitalXBanner = false,
     digitalXBannerSize = '600x1800mm',
     digitalXBannerQty = 1,
+    digitalXBannerStand = '거치대포함',
     optDigitalBanner = false,
     digitalBannerSize = '4000x900mm',
     digitalBannerQty = 1,
@@ -271,6 +272,9 @@ export function calculateDigital(params) {
   // 내지 인쇄 기본 단가 (컬러=300원, 흑백=80원)
   const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
 
+  // X배너 제작 기본 단가 (거치대포함=60,000원, 거치대미포함=40,000원)
+  const defaultXBannerMakePrice = digitalXBannerStand === '거치대미포함' ? 40000 : 60000;
+
   // 단가 설정 (사용자 수동 지정 또는 템플릿/색상 기본값)
   const coverDesignPrice = customPrices.digitalCoverDesignPrice !== undefined ? Number(customPrices.digitalCoverDesignPrice) : 300000;
   const innerEditPrice = customPrices.digitalInnerEditPrice !== undefined ? Number(customPrices.digitalInnerEditPrice) : 10040;
@@ -278,7 +282,7 @@ export function calculateDigital(params) {
   const bindingPrice = customPrices.digitalBindingPrice !== undefined ? Number(customPrices.digitalBindingPrice) : 4000;
 
   const xbannerDesignPrice = customPrices.digitalXBannerDesignPrice !== undefined ? Number(customPrices.digitalXBannerDesignPrice) : 60000;
-  const xbannerMakePrice = customPrices.digitalXBannerMakePrice !== undefined ? Number(customPrices.digitalXBannerMakePrice) : 60000;
+  const xbannerMakePrice = customPrices.digitalXBannerMakePrice !== undefined ? Number(customPrices.digitalXBannerMakePrice) : defaultXBannerMakePrice;
 
   const bannerDesignPrice = customPrices.digitalBannerDesignPrice !== undefined ? Number(customPrices.digitalBannerDesignPrice) : 60000;
   const bannerMakePrice = customPrices.digitalBannerMakePrice !== undefined ? Number(customPrices.digitalBannerMakePrice) : 50000;
@@ -312,7 +316,7 @@ export function calculateDigital(params) {
     const xbDesignAmount = round(1 * xbannerDesignPrice);
     const xbMakeAmount = round(numXBannerQty * xbannerMakePrice);
     items.push({ key: 'digitalXBannerDesignPrice', name: 'X배너 (기본 디자인)', qty: 1, unit: '식', unitPrice: xbannerDesignPrice, amount: xbDesignAmount, editable: true });
-    items.push({ key: 'digitalXBannerMakePrice', name: `X배너 (${digitalXBannerSize})`, qty: numXBannerQty, unit: '부', unitPrice: xbannerMakePrice, amount: xbMakeAmount, editable: true });
+    items.push({ key: 'digitalXBannerMakePrice', name: `X배너 (${digitalXBannerSize}) [${digitalXBannerStand}]`, qty: numXBannerQty, unit: '부', unitPrice: xbannerMakePrice, amount: xbMakeAmount, editable: true });
   }
 
   // 현수막
@@ -343,6 +347,7 @@ export function calculateDigital(params) {
     optDigitalXBanner,
     digitalXBannerSize,
     digitalXBannerQty: numXBannerQty,
+    digitalXBannerStand,
     optDigitalBanner,
     digitalBannerSize,
     digitalBannerQty: numBannerQty,

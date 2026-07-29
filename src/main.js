@@ -196,6 +196,7 @@ function updateSummaryAndBreakdownOnly() {
   const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
   const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
   const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
+  const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
   const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
   const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
   const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
@@ -225,6 +226,7 @@ function updateSummaryAndBreakdownOnly() {
     optDigitalXBanner,
     digitalXBannerSize,
     digitalXBannerQty,
+    digitalXBannerStand,
     optDigitalBanner,
     digitalBannerSize,
     digitalBannerQty,
@@ -304,6 +306,7 @@ function updateFullPreview() {
   const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
   const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
   const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
+  const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
   const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
   const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
   const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
@@ -335,6 +338,7 @@ function updateFullPreview() {
     optDigitalXBanner,
     digitalXBannerSize,
     digitalXBannerQty,
+    digitalXBannerStand,
     optDigitalBanner,
     digitalBannerSize,
     digitalBannerQty,
@@ -464,6 +468,13 @@ document.querySelectorAll('input[name="digitalColorType"]').forEach(el => {
   });
 });
 
+document.querySelectorAll('input[name="digitalXBannerStand"]').forEach(el => {
+  el.addEventListener('change', () => {
+    delete userCustomPrices['digitalXBannerMakePrice'];
+    updateFullPreview();
+  });
+});
+
 document.querySelectorAll('input[name="printSize"]').forEach(el => {
   el.addEventListener('change', () => {
     const size = getSelectedRadioValue('printSize');
@@ -497,6 +508,7 @@ btnDownload.addEventListener('click', async () => {
   const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
   const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
   const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
+  const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
   const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
   const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
   const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
@@ -531,6 +543,7 @@ btnDownload.addEventListener('click', async () => {
       optDigitalXBanner,
       digitalXBannerSize,
       digitalXBannerQty,
+      digitalXBannerStand,
       optDigitalBanner,
       digitalBannerSize,
       digitalBannerQty,

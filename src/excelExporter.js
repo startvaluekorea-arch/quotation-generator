@@ -269,10 +269,16 @@ export async function downloadExcelQuotation(params) {
 
     // 19~21행 (X배너) 옵션 제어
     if (optDigitalXBanner) {
+      const digitalXBannerStand = params.digitalXBannerStand || '거치대포함';
+      const defaultXBannerMakePrice = digitalXBannerStand === '거치대미포함' ? 40000 : 60000;
+      const xbannerMakePrice = customPrices.digitalXBannerMakePrice !== undefined ? Number(customPrices.digitalXBannerMakePrice) : defaultXBannerMakePrice;
+
       for (let r = 19; r <= 21; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
       sheetXml = updateCellInSheetXml(sheetXml, 'E20', 1, false); // E20 = 1
       sheetXml = updateCellInSheetXml(sheetXml, 'E19', digitalXBannerSize, true); // E19 = 크기
       sheetXml = updateCellInSheetXml(sheetXml, 'G19', digitalXBannerQty, false); // G19 = 수량
+      sheetXml = updateCellInSheetXml(sheetXml, 'K21', digitalXBannerStand, true); // K21 = '거치대포함' 또는 '거치대미포함'
+      sheetXml = updateCellInSheetXml(sheetXml, 'G21', xbannerMakePrice, false); // G21 = 단가
       for (let r = 30; r <= 32; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 30~32행 숨김
     } else {
       for (let r = 19; r <= 21; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);

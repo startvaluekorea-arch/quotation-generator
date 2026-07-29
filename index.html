@@ -191,14 +191,30 @@
             </div>
 
             <!-- X배너 상세 입력 -->
-            <div class="form-row" id="group-digital-xbanner-details" style="display: none; margin-top: 10px;">
-              <div class="form-group">
-                <label for="digitalXBannerSize">X배너 크기 <span class="unit">(E19)</span></label>
-                <input type="text" id="digitalXBannerSize" value="600x1800mm" placeholder="예: 600x1800mm" />
+            <div class="form-group" id="group-digital-xbanner-details" style="display: none; margin-top: 10px;">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="digitalXBannerSize">X배너 크기 <span class="unit">(E19)</span></label>
+                  <input type="text" id="digitalXBannerSize" value="600x1800mm" placeholder="예: 600x1800mm" />
+                </div>
+                <div class="form-group">
+                  <label for="digitalXBannerQty">X배너 수량 <span class="unit">(G19)</span></label>
+                  <input type="number" id="digitalXBannerQty" min="1" step="1" value="1" />
+                </div>
               </div>
-              <div class="form-group">
-                <label for="digitalXBannerQty">X배너 수량 <span class="unit">(G19)</span></label>
-                <input type="number" id="digitalXBannerQty" min="1" step="1" value="1" />
+              <div class="form-group" style="margin-top: 4px;">
+                <label>거치대 포함 여부 <span class="unit">(K21)</span></label>
+                <div class="segmented-control">
+                  <input type="radio" name="digitalXBannerStand" id="xbanner-stand-yes" value="거치대포함" checked />
+                  <label for="xbanner-stand-yes" class="segment-label center-align">
+                    <span class="radio-title">거치대포함 (기본 60,000원)</span>
+                  </label>
+
+                  <input type="radio" name="digitalXBannerStand" id="xbanner-stand-no" value="거치대미포함" />
+                  <label for="xbanner-stand-no" class="segment-label center-align">
+                    <span class="radio-title">거치대미포함 (기본 40,000원)</span>
+                  </label>
+                </div>
               </div>
             </div>
 

@@ -12,6 +12,9 @@ const coverPaperInput = document.getElementById('coverPaper');
 const innerPaperInput = document.getElementById('innerPaper');
 const discountRateInput = document.getElementById('discountRate');
 
+const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
+const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
+
 const kyungDiscountSelect = document.getElementById('kyungDiscount');
 const kyungDiscountGroup = document.getElementById('group-kyung-discount');
 const kyungCustomDiscountGroup = document.getElementById('group-kyung-custom-discount');
@@ -110,6 +113,7 @@ function updateDefaultDiscountRate() {
 function toggleModeOptions() {
   const type = getSelectedRadioValue('printType');
   if (type === '경인쇄') {
+    kyungCoverDesignGroup.style.display = 'flex';
     kyungDiscountGroup.style.display = 'flex';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
@@ -119,6 +123,7 @@ function toggleModeOptions() {
       kyungCustomDiscountGroup.style.display = 'none';
     }
   } else {
+    kyungCoverDesignGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'flex';
@@ -152,6 +157,7 @@ function updateSummaryAndBreakdownOnly() {
   const profitRate = parseInt(profitRateInput.value, 10) || 0;
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
+  const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
 
   const calc = calculateQuotation({
     type,
@@ -169,6 +175,7 @@ function updateSummaryAndBreakdownOnly() {
     profitRate,
     optEpoxy,
     optFoil,
+    optKyungCoverDesign,
     customPrices: userCustomPrices
   });
 
@@ -230,6 +237,7 @@ function updateFullPreview() {
   const profitRate = parseInt(profitRateInput.value, 10) || 0;
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
+  const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
 
   previewBadge.textContent = `${type} ${size} (${discountRate}% 할인)`;
 
@@ -249,6 +257,7 @@ function updateFullPreview() {
     profitRate,
     optEpoxy,
     optFoil,
+    optKyungCoverDesign,
     customPrices: userCustomPrices
   });
 
@@ -330,7 +339,7 @@ function updateFullPreview() {
   el.addEventListener('change', updateFullPreview);
 });
 
-[optEpoxyCheck, optFoilCheck].forEach(el => {
+[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck].forEach(el => {
   el.addEventListener('change', updateFullPreview);
 });
 
@@ -367,6 +376,7 @@ btnDownload.addEventListener('click', async () => {
   const profitRate = parseInt(profitRateInput.value, 10) || 0;
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
+  const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
 
   btnDownload.disabled = true;
   const originalText = btnDownload.innerHTML;
@@ -389,6 +399,7 @@ btnDownload.addEventListener('click', async () => {
       profitRate,
       optEpoxy,
       optFoil,
+      optKyungCoverDesign,
       customPrices: userCustomPrices
     });
   } catch (err) {

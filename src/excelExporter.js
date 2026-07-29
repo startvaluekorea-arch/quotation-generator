@@ -106,6 +106,7 @@ export async function downloadExcelQuotation(params) {
     profitRate = 20,
     optEpoxy = false,
     optFoil = false,
+    optKyungCoverDesign = false,
     coverPaper = '아트250',
     innerPaper = '미색80',
     customPrices = {}
@@ -184,6 +185,17 @@ export async function downloadExcelQuotation(params) {
 
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'I16', i16Formula);
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'I17', i17Formula);
+
+    // 18행: 표지디자인 옵션 제어 (선택 시 18행 숨김 해제 및 D18, D12 셀에 300,000 입력, 미선택 시 18행 숨김 유지 및 0 입력)
+    if (optKyungCoverDesign) {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 18, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'D18', 300000, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'D12', 300000, false);
+    } else {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 18, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'D12', 0, false);
+    }
   } else {
     // 옵셋 (최신 수정 템플릿 기준)
     sheetXml = updateCellInSheetXml(sheetXml, 'G10', numQuantity, false);

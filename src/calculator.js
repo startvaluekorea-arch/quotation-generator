@@ -23,7 +23,7 @@ function getTruncation(val) {
  * 경인쇄 (10절 / 16절) 견적 계산
  */
 export function calculateKyung(params) {
-  const { size, quantity, pages, discountRate = 75, kyungDiscount = 3500, coverPaper = '아트250', innerPaper = '미색80' } = params;
+  const { size, quantity, pages, discountRate = 75, kyungDiscount = 3500, coverPaper = '아트250', innerPaper = '미색80', optKyungCoverDesign = false } = params;
 
   const d16 = 15370;
   const e16 = quantity > 50 ? quantity - 50 : 0;
@@ -52,16 +52,19 @@ export function calculateKyung(params) {
   const f17 = quantity > 50 ? quantity - 50 : 0;
   const i17 = (baseCost + (f17 / 10) * extraRate) * g17 * h16Rate;
 
-  // 18행 (마스터판)
-  const i18 = pages * 500;
+  // 18행 (표지디자인)
+  const i18 = optKyungCoverDesign ? 300000 : 0;
 
   const discountNote = d17 > 0 ? ` (조판생략감액: ${d17.toLocaleString()}원 차감)` : '';
 
   const items = [
     { key: 'kyungCover', name: `표지 (4색, 단면)`, qty: g16, unitPrice: d16, amount: round(i16), note: `${coverPaper}, ${discountRate}% 할인적용` },
-    { key: 'kyungInner', name: `내지 (1색, 양면)${discountNote}`, qty: g17, unitPrice: d17, amount: round(i17), note: `${innerPaper}, ${discountRate}% 할인적용` },
-    { key: 'kyungMaster', name: '마스터판 및 기타', qty: pages, unitPrice: 500, amount: round(i18), note: `${pages}P * 500` }
+    { key: 'kyungInner', name: `내지 (1색, 양면)${discountNote}`, qty: g17, unitPrice: d17, amount: round(i17), note: `${innerPaper}, ${discountRate}% 할인적용` }
   ];
+
+  if (optKyungCoverDesign) {
+    items.push({ key: 'kyungCoverDesign', name: '표지디자인', qty: 1, unitPrice: 300000, amount: 300000, note: '300,000원' });
+  }
 
   const subTotal = items.reduce((acc, cur) => acc + cur.amount, 0);
   const totalMargin = round(subTotal * 1.0);

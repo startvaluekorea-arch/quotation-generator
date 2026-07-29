@@ -219,7 +219,7 @@ export async function downloadExcelQuotation(params) {
       sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
     }
   } else if (type === '디지털') {
-    const digitalColorType = params.digitalColorType || '컬러';
+    const numColorPages = params.colorPages !== undefined ? Number(params.colorPages) : numPages;
     const optDigitalCoverType = params.optDigitalCoverType || false;
     const optDigitalInnerEdit = params.optDigitalInnerEdit || false;
     const optDigitalXBanner = params.optDigitalXBanner || false;
@@ -231,91 +231,106 @@ export async function downloadExcelQuotation(params) {
     const optDigitalNameplate = params.optDigitalNameplate || false;
     const digitalNameplateQty = Number(params.digitalNameplateQty) || 1;
 
-    const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
-    const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
+    const colorPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : 300;
+    const bwPrintPrice = customPrices.digitalBWPrintPrice !== undefined ? Number(customPrices.digitalBWPrintPrice) : 80;
 
-    // 디지털 인쇄 부수(G14) 및 페이지수(H14) 주입
-    sheetXml = updateCellInSheetXml(sheetXml, 'G14', numQuantity, false);
-    sheetXml = updateCellInSheetXml(sheetXml, 'H14', numPages, false);
+    // 디지털 인쇄 부수(E14) 및 총 면수(G14) 주입
+    sheetXml = updateCellInSheetXml(sheetXml, 'E14', numQuantity, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'G14', numPages, false);
 
-    // E17: 내지 페이지수 수식 (=H14) 주입
-    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E17', 'H14');
-    // F17: 내지 인쇄 부수 수식 (=G14) 주입
-    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'G14');
-    // E18: 제본 부수 수식 (=G14) 주입
-    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E18', 'G14');
+    // E17: 컬러 면수 주입
+    sheetXml = updateCellInSheetXml(sheetXml, 'E17', numColorPages, false);
+    // F17: 내지 인쇄 부수 수식 (=E14) 주입
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'E14');
+
+    // 18행: 흑백 인쇄 (총면수와 컬러면수가 동일하면 숨김 처리!)
+    if (numColorPages >= numPages) {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 18, true);
+    } else {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 18, false);
+      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E18', 'G14-E17'); // E18 = 총면수(G14) - 컬러면수(E17)
+      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F18', 'E14'); // F18 = 부수(E14)
+    }
+
+    // 19행: 제본 부수 수식 (=E14) 주입
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E19', 'E14');
 
     // 15행 (책자-표지조판) 옵션 제어
     if (optDigitalCoverType) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 15, false); // 숨김 해제
       sheetXml = updateCellInSheetXml(sheetXml, 'E15', 1, false); // E15 = 1
-      sheetXml = setRowHiddenInSheetXml(sheetXml, 28, true); // 28행 숨김
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 29, true); // 29행 숨김
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 15, true); // 숨김 유지
       sheetXml = updateCellInSheetXml(sheetXml, 'E15', 0, false);
-      sheetXml = setRowHiddenInSheetXml(sheetXml, 28, false); // 28행 숨김 해제
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 29, false); // 29행 숨김 해제
     }
 
     // 16행 (책자-내지편집) 옵션 제어
     if (optDigitalInnerEdit) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 16, false); // 숨김 해제
-      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E16', 'H14'); // E16 = H14 셀 참조
-      sheetXml = setRowHiddenInSheetXml(sheetXml, 29, true); // 29행 숨김
+      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E16', 'G14'); // E16 = G14 셀 참조 (총면수)
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 30, true); // 30행 숨김
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 16, true); // 숨김 유지
       sheetXml = updateCellInSheetXml(sheetXml, 'E16', 0, false);
-      sheetXml = setRowHiddenInSheetXml(sheetXml, 29, false); // 29행 숨김 해제
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 30, false); // 30행 숨김 해제
     }
 
-    // 19~21행 (X배너) 옵션 제어
+    // 20~22행 (X배너) 옵션 제어
     if (optDigitalXBanner) {
       const digitalXBannerStand = params.digitalXBannerStand || '거치대포함';
       const defaultXBannerMakePrice = digitalXBannerStand === '거치대미포함' ? 40000 : 60000;
       const xbannerMakePrice = customPrices.digitalXBannerMakePrice !== undefined ? Number(customPrices.digitalXBannerMakePrice) : defaultXBannerMakePrice;
 
-      for (let r = 19; r <= 21; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E20', 1, false); // E20 = 1
-      sheetXml = updateCellInSheetXml(sheetXml, 'E19', digitalXBannerSize, true); // E19 = 크기
-      sheetXml = updateCellInSheetXml(sheetXml, 'G19', digitalXBannerQty, false); // G19 = 수량
-      sheetXml = updateCellInSheetXml(sheetXml, 'K21', digitalXBannerStand, true); // K21 = '거치대포함' 또는 '거치대미포함'
-      sheetXml = updateCellInSheetXml(sheetXml, 'G21', xbannerMakePrice, false); // G21 = 단가
-      for (let r = 30; r <= 32; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 30~32행 숨김
+      for (let r = 20; r <= 22; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E21', 1, false); // E21 = 1
+      sheetXml = updateCellInSheetXml(sheetXml, 'E20', digitalXBannerSize, true); // E20 = 크기
+      sheetXml = updateCellInSheetXml(sheetXml, 'G20', digitalXBannerQty, false); // G20 = 수량
+      sheetXml = updateCellInSheetXml(sheetXml, 'K22', digitalXBannerStand, true); // K22 = '거치대포함' 또는 '거치대미포함'
+      sheetXml = updateCellInSheetXml(sheetXml, 'G22', xbannerMakePrice, false); // G22 = 단가
+      for (let r = 31; r <= 33; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 31~33행 숨김
     } else {
-      for (let r = 19; r <= 21; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E20', 0, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'G19', 0, false);
-      for (let r = 30; r <= 32; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      for (let r = 20; r <= 22; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E21', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G20', 0, false);
+      for (let r = 31; r <= 33; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
     }
 
-    // 22~24행 (현수막) 옵션 제어
+    // 23~25행 (현수막) 옵션 제어
     if (optDigitalBanner) {
-      for (let r = 22; r <= 24; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E23', 1, false); // E23 = 1
-      sheetXml = updateCellInSheetXml(sheetXml, 'E22', digitalBannerSize, true); // E22 = 크기
-      sheetXml = updateCellInSheetXml(sheetXml, 'G22', digitalBannerQty, false); // G22 = 수량
-      for (let r = 33; r <= 35; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 33~35행 숨김
+      const defaultBannerMakePrice = 50000;
+      const bannerMakePrice = customPrices.digitalBannerMakePrice !== undefined ? Number(customPrices.digitalBannerMakePrice) : defaultBannerMakePrice;
+
+      for (let r = 23; r <= 25; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E24', 1, false); // E24 = 1
+      sheetXml = updateCellInSheetXml(sheetXml, 'E23', digitalBannerSize, true); // E23 = 크기
+      sheetXml = updateCellInSheetXml(sheetXml, 'G23', digitalBannerQty, false); // G23 = 수량
+      sheetXml = updateCellInSheetXml(sheetXml, 'G25', bannerMakePrice, false); // G25 = 단가
+      for (let r = 34; r <= 36; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 34~36행 숨김
     } else {
-      for (let r = 22; r <= 24; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E23', 0, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'G22', 0, false);
-      for (let r = 33; r <= 35; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      for (let r = 23; r <= 25; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E24', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G23', 0, false);
+      for (let r = 34; r <= 36; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
     }
 
-    // 25~27행 (명패) 옵션 제어
+    // 26~28행 (명패) 옵션 제어
     if (optDigitalNameplate) {
-      for (let r = 25; r <= 27; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E26', 1, false); // E26 = 1
-      sheetXml = updateCellInSheetXml(sheetXml, 'G25', digitalNameplateQty, false); // G25 = 수량
-      for (let r = 36; r <= 38; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 36~38행 숨김
-    } else {
-      for (let r = 25; r <= 27; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E26', 0, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'G25', 0, false);
-      for (let r = 36; r <= 38; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
-    }
+      const defaultNameplateMakePrice = 4500;
+      const nameplateMakePrice = customPrices.digitalNameplateMakePrice !== undefined ? Number(customPrices.digitalNameplateMakePrice) : defaultNameplateMakePrice;
 
-    // D17: 내지 인쇄 색상 주입 ('컬러' 또는 '흑백')
-    sheetXml = updateCellInSheetXml(sheetXml, 'D17', digitalColorType, true);
+      for (let r = 26; r <= 28; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E27', 1, false); // E27 = 1
+      sheetXml = updateCellInSheetXml(sheetXml, 'G26', digitalNameplateQty, false); // G26 = 수량
+      sheetXml = updateCellInSheetXml(sheetXml, 'G28', nameplateMakePrice, false); // G28 = 단가
+      for (let r = 37; r <= 39; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 37~39행 숨김
+    } else {
+      for (let r = 26; r <= 28; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E27', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G26', 0, false);
+      for (let r = 37; r <= 39; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+    }
 
     // G열 단가 주입 (실시간 프리뷰에서 사용자가 수정한 customPrices 100% 반영)
     if (customPrices.digitalCoverDesignPrice !== undefined) {
@@ -324,28 +339,20 @@ export async function downloadExcelQuotation(params) {
     if (customPrices.digitalInnerEditPrice !== undefined) {
       sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(customPrices.digitalInnerEditPrice), false);
     }
-    sheetXml = updateCellInSheetXml(sheetXml, 'G17', innerPrintPrice, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'G17', colorPrintPrice, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'G18', bwPrintPrice, false);
 
     if (customPrices.digitalBindingPrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G18', Number(customPrices.digitalBindingPrice), false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G19', Number(customPrices.digitalBindingPrice), false);
     }
     if (customPrices.digitalXBannerDesignPrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G20', Number(customPrices.digitalXBannerDesignPrice), false);
-    }
-    if (customPrices.digitalXBannerMakePrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G21', Number(customPrices.digitalXBannerMakePrice), false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G21', Number(customPrices.digitalXBannerDesignPrice), false);
     }
     if (customPrices.digitalBannerDesignPrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G23', Number(customPrices.digitalBannerDesignPrice), false);
-    }
-    if (customPrices.digitalBannerMakePrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G24', Number(customPrices.digitalBannerMakePrice), false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G24', Number(customPrices.digitalBannerDesignPrice), false);
     }
     if (customPrices.digitalNameplateDesignPrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G26', Number(customPrices.digitalNameplateDesignPrice), false);
-    }
-    if (customPrices.digitalNameplateMakePrice !== undefined) {
-      sheetXml = updateCellInSheetXml(sheetXml, 'G27', Number(customPrices.digitalNameplateMakePrice), false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G27', Number(customPrices.digitalNameplateDesignPrice), false);
     }
   } else {
     // 옵셋 (최신 수정 템플릿 기준)

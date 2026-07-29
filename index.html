@@ -152,22 +152,14 @@
             </select>
           </div>
 
-          <!-- 디지털 인쇄 전용: 내지 인쇄 색상 및 추가 옵션 선택 (디지털 선택 시 표시) -->
+          <!-- 디지털 인쇄 전용: 컬러 면수 및 추가 옵션 선택 (디지털 선택 시 표시) -->
           <div class="form-group" id="group-digital-options" style="display: none;">
-            <label>디지털 인쇄 옵션 선택 <span class="unit">(디지털 전용)</span></label>
-            <div class="segmented-control" style="margin-bottom: 12px;">
-              <input type="radio" name="digitalColorType" id="digital-color-color" value="컬러" checked />
-              <label for="digital-color-color" class="segment-label center-align">
-                <span class="radio-title">컬러</span>
-                <span class="radio-desc">(기본 300원)</span>
-              </label>
-
-              <input type="radio" name="digitalColorType" id="digital-color-bw" value="흑백" />
-              <label for="digital-color-bw" class="segment-label center-align">
-                <span class="radio-title">흑백</span>
-                <span class="radio-desc">(기본 80원)</span>
-              </label>
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="digitalColorPages">컬러 면수 <span class="unit">(P / E17 셀 주입)</span></label>
+              <input type="number" id="digitalColorPages" min="0" step="1" value="40" placeholder="예: 40 (총면수와 동일 시 18행 흑백 숨김)" />
             </div>
+
+            <label style="margin-top: 4px;">디지털 추가 옵션 선택</label>
 
             <div class="checkbox-group">
               <label class="checkbox-label">

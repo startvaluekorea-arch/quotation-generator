@@ -16,6 +16,7 @@ const discountRateGroup = document.getElementById('group-discount-rate');
 const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
 const digitalOptionsGroup = document.getElementById('group-digital-options');
+const digitalColorPagesInput = document.getElementById('digitalColorPages');
 const optDigitalCoverTypeCheck = document.getElementById('opt-digital-cover-type');
 const optDigitalInnerEditCheck = document.getElementById('opt-digital-inner-edit');
 
@@ -190,7 +191,7 @@ function updateSummaryAndBreakdownOnly() {
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
-  const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
+  const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
   const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
   const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
   const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
@@ -211,6 +212,7 @@ function updateSummaryAndBreakdownOnly() {
     dateStr,
     quantity,
     pages,
+    colorPages,
     coverPaper,
     innerPaper,
     discountRate,
@@ -220,7 +222,6 @@ function updateSummaryAndBreakdownOnly() {
     optEpoxy,
     optFoil,
     optKyungCoverDesign,
-    digitalColorType,
     optDigitalCoverType,
     optDigitalInnerEdit,
     optDigitalXBanner,
@@ -300,7 +301,7 @@ function updateFullPreview() {
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
-  const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
+  const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
   const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
   const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
   const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
@@ -313,7 +314,7 @@ function updateFullPreview() {
   const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
   const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
 
-  previewBadge.textContent = type === '디지털' ? `${type} 인쇄 (${digitalColorType})` : `${type} ${size} (${discountRate}% 할인)`;
+  previewBadge.textContent = type === '디지털' ? `${type} 인쇄` : `${type} ${size} (${discountRate}% 할인)`;
 
   const calc = calculateQuotation({
     type,
@@ -323,6 +324,7 @@ function updateFullPreview() {
     dateStr,
     quantity,
     pages,
+    colorPages,
     coverPaper,
     innerPaper,
     discountRate,
@@ -332,7 +334,6 @@ function updateFullPreview() {
     optEpoxy,
     optFoil,
     optKyungCoverDesign,
-    digitalColorType,
     optDigitalCoverType,
     optDigitalInnerEdit,
     optDigitalXBanner,
@@ -426,7 +427,7 @@ function updateFullPreview() {
 }
 
 // Form Event Listeners for Full Preview Update
-[customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, digitalXBannerSizeInput, digitalXBannerQtyInput, digitalBannerSizeInput, digitalBannerQtyInput, digitalNameplateQtyInput].forEach(el => {
+[customerInput, dateInput, titleInput, quantityInput, pagesInput, digitalColorPagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, digitalXBannerSizeInput, digitalXBannerQtyInput, digitalBannerSizeInput, digitalBannerQtyInput, digitalNameplateQtyInput].forEach(el => {
   if (el) {
     el.addEventListener('input', updateFullPreview);
     el.addEventListener('change', updateFullPreview);
@@ -502,7 +503,7 @@ btnDownload.addEventListener('click', async () => {
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
-  const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
+  const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
   const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
   const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
   const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
@@ -528,6 +529,7 @@ btnDownload.addEventListener('click', async () => {
       dateStr,
       quantity,
       pages,
+      colorPages,
       coverPaper,
       innerPaper,
       discountRate,
@@ -537,7 +539,6 @@ btnDownload.addEventListener('click', async () => {
       optEpoxy,
       optFoil,
       optKyungCoverDesign,
-      digitalColorType,
       optDigitalCoverType,
       optDigitalInnerEdit,
       optDigitalXBanner,

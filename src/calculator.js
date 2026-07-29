@@ -246,9 +246,9 @@ export function calculateDigital(params) {
   const {
     quantity,
     pages,
+    colorPages,
     coverPaper = '아트250',
     innerPaper = '미색80',
-    digitalColorType = '컬러',
     optDigitalCoverType = false,
     optDigitalInnerEdit = false,
     optDigitalXBanner = false,
@@ -264,24 +264,26 @@ export function calculateDigital(params) {
   } = params;
 
   const numQuantity = Number(quantity) || 1;
-  const numPages = Number(pages) || 1;
+  const numTotalPages = Number(pages) || 1;
+
+  // 컬러 면수 처리: 지정되지 않은 경우 기본적으로 총면수와 동일 처리
+  const numColorPages = colorPages !== undefined ? Number(colorPages) : numTotalPages;
+  const clampedColorPages = Math.min(numTotalPages, Math.max(0, numColorPages));
+  const numBWPages = Math.max(0, numTotalPages - clampedColorPages);
+
   const numXBannerQty = Number(digitalXBannerQty) || 1;
   const numBannerQty = Number(digitalBannerQty) || 1;
   const numNameplateQty = Number(digitalNameplateQty) || 1;
 
-  // 내지 인쇄 기본 단가 (컬러=300원, 흑백=80원)
-  const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
-
-  // X배너 제작 기본 단가 (거치대포함=60,000원, 거치대미포함=40,000원)
-  const defaultXBannerMakePrice = digitalXBannerStand === '거치대미포함' ? 40000 : 60000;
-
-  // 단가 설정 (사용자 수동 지정 또는 템플릿/색상 기본값)
+  // 단가 설정 (사용자 수동 지정 또는 템플릿 기본값)
   const coverDesignPrice = customPrices.digitalCoverDesignPrice !== undefined ? Number(customPrices.digitalCoverDesignPrice) : 300000;
   const innerEditPrice = customPrices.digitalInnerEditPrice !== undefined ? Number(customPrices.digitalInnerEditPrice) : 10040;
-  const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
+  const colorPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : 300;
+  const bwPrintPrice = customPrices.digitalBWPrintPrice !== undefined ? Number(customPrices.digitalBWPrintPrice) : 80;
   const bindingPrice = customPrices.digitalBindingPrice !== undefined ? Number(customPrices.digitalBindingPrice) : 4000;
 
   const xbannerDesignPrice = customPrices.digitalXBannerDesignPrice !== undefined ? Number(customPrices.digitalXBannerDesignPrice) : 60000;
+  const defaultXBannerMakePrice = digitalXBannerStand === '거치대미포함' ? 40000 : 60000;
   const xbannerMakePrice = customPrices.digitalXBannerMakePrice !== undefined ? Number(customPrices.digitalXBannerMakePrice) : defaultXBannerMakePrice;
 
   const bannerDesignPrice = customPrices.digitalBannerDesignPrice !== undefined ? Number(customPrices.digitalBannerDesignPrice) : 60000;
@@ -300,16 +302,25 @@ export function calculateDigital(params) {
 
   // 책자-내지편집 (선택 시만 가산)
   if (optDigitalInnerEdit) {
-    const innerEditAmount = round(numPages * innerEditPrice);
-    items.push({ key: 'digitalInnerEditPrice', name: '책자-내지편집', qty: numPages, unit: 'P', unitPrice: innerEditPrice, amount: innerEditAmount, editable: true });
+    const innerEditAmount = round(numTotalPages * innerEditPrice);
+    items.push({ key: 'digitalInnerEditPrice', name: '책자-내지편집', qty: numTotalPages, unit: 'P', unitPrice: innerEditPrice, amount: innerEditAmount, editable: true });
   }
 
-  // 내지 인쇄 & 제본 (기본 포함)
-  const innerPrintAmount = round(numPages * numQuantity * innerPrintPrice);
-  const bindingAmount = round(numQuantity * bindingPrice);
+  // 내지 인쇄 (컬러)
+  if (clampedColorPages > 0) {
+    const colorPrintAmount = round(clampedColorPages * numQuantity * colorPrintPrice);
+    items.push({ key: 'digitalInnerPrintPrice', name: '내지 인쇄 (컬러)', qty: `${clampedColorPages}P × ${numQuantity}부`, unit: '', unitPrice: colorPrintPrice, amount: colorPrintAmount, editable: true });
+  }
 
-  items.push({ key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true });
-  items.push({ key: 'digitalBindingPrice', name: '제본 (표지제작포함)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true });
+  // 내지 인쇄 (흑백) - 총면수 > 컬러면수 일 때만 포함
+  if (numBWPages > 0) {
+    const bwPrintAmount = round(numBWPages * numQuantity * bwPrintPrice);
+    items.push({ key: 'digitalBWPrintPrice', name: '내지 인쇄 (흑백)', qty: `${numBWPages}P × ${numQuantity}부`, unit: '', unitPrice: bwPrintPrice, amount: bwPrintAmount, editable: true });
+  }
+
+  // 제본 (기본 포함)
+  const bindingAmount = round(numQuantity * bindingPrice);
+  items.push({ key: 'digitalBindingPrice', name: '제본 (무선제본)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true });
 
   // X배너
   if (optDigitalXBanner) {
@@ -341,7 +352,8 @@ export function calculateDigital(params) {
 
   return {
     type: '디지털',
-    digitalColorType,
+    colorPages: clampedColorPages,
+    bwPages: numBWPages,
     optDigitalCoverType,
     optDigitalInnerEdit,
     optDigitalXBanner,
@@ -354,13 +366,14 @@ export function calculateDigital(params) {
     optDigitalNameplate,
     digitalNameplateQty: numNameplateQty,
     quantity: numQuantity,
-    pages: numPages,
+    pages: numTotalPages,
     coverPaper,
     innerPaper,
     customPrices: {
       digitalCoverDesignPrice: coverDesignPrice,
       digitalInnerEditPrice: innerEditPrice,
-      digitalInnerPrintPrice: innerPrintPrice,
+      digitalInnerPrintPrice: colorPrintPrice,
+      digitalBWPrintPrice: bwPrintPrice,
       digitalBindingPrice: bindingPrice,
       digitalXBannerDesignPrice: xbannerDesignPrice,
       digitalXBannerMakePrice: xbannerMakePrice,

@@ -238,10 +238,14 @@ export async function downloadExcelQuotation(params) {
     sheetXml = updateCellInSheetXml(sheetXml, 'E14', numQuantity, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'G14', numPages, false);
 
-    // E17: 컬러 면수 주입
-    sheetXml = updateCellInSheetXml(sheetXml, 'E17', numColorPages, false);
-    // F17: 내지 인쇄 부수 수식 (=E14) 주입
-    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'E14');
+    // 17행: 컬러 인쇄 (컬러 면수가 0 이하이면 숨김 처리!)
+    if (numColorPages <= 0) {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 17, true);
+    } else {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 17, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E17', numColorPages, false);
+      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'E14');
+    }
 
     // 18행: 흑백 인쇄 (총면수와 컬러면수가 동일하면 숨김 처리!)
     if (numColorPages >= numPages) {

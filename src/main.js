@@ -100,7 +100,7 @@ function updateDefaultDiscountRate() {
 
   if (type !== lastType || size !== lastSize) {
     if (type === '경인쇄') {
-      discountRateInput.value = size === '10절' ? 75 : 80;
+      discountRateInput.value = 80;
       populateKyungDiscountOptions(size);
     } else {
       discountRateInput.value = 85;

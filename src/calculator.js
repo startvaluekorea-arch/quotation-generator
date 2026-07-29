@@ -23,7 +23,7 @@ function getTruncation(val) {
  * 경인쇄 (10절 / 16절) 견적 계산
  */
 export function calculateKyung(params) {
-  const { size, quantity, pages, discountRate = 75, kyungDiscount = 3500, coverPaper = '아트250', innerPaper = '미색80', optKyungCoverDesign = false, customPrices = {} } = params;
+  const { size, quantity, pages, discountRate = 80, kyungDiscount = 3500, coverPaper = '아트250', innerPaper = '미색80', optKyungCoverDesign = false, customPrices = {} } = params;
 
   const d16 = 15370;
   const e16 = quantity > 50 ? quantity - 50 : 0;

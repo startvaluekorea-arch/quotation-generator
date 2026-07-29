@@ -126,6 +126,8 @@ export async function downloadExcelQuotation(params) {
   let filename = '';
   if (type === '경인쇄') {
     filename = size === '10절' ? '경인쇄 10절.xlsx' : '경인쇄 16절.xlsx';
+  } else if (type === '디지털') {
+    filename = '디지털.xlsx';
   } else {
     filename = size === '10절' ? '옵셋10절(현재화).xlsx' : '옵셋16절(현재화).xlsx';
   }
@@ -215,6 +217,31 @@ export async function downloadExcelQuotation(params) {
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, true);
       sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
+    }
+  } else if (type === '디지털') {
+    const digitalColorType = params.digitalColorType || '컬러';
+    const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
+    const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
+
+    // 디지털 인쇄 부수(G14) 및 페이지수(H14) 주입
+    sheetXml = updateCellInSheetXml(sheetXml, 'G14', numQuantity, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'H14', numPages, false);
+
+    // D17: 내지 인쇄 색상 주입 ('컬러' 또는 '흑백')
+    sheetXml = updateCellInSheetXml(sheetXml, 'D17', digitalColorType, true);
+
+    // G17: 내지 인쇄 단가 주입 (컬러=300, 흑백=80 또는 수동 수정 단가)
+    sheetXml = updateCellInSheetXml(sheetXml, 'G17', innerPrintPrice, false);
+
+    // 단가 주입 (G15: 표지 디자인, G16: 내지 편집, G18: 제본)
+    if (customPrices.digitalCoverDesignPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G15', Number(customPrices.digitalCoverDesignPrice), false);
+    }
+    if (customPrices.digitalInnerEditPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(customPrices.digitalInnerEditPrice), false);
+    }
+    if (customPrices.digitalBindingPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G18', Number(customPrices.digitalBindingPrice), false);
     }
   } else {
     // 옵셋 (최신 수정 템플릿 기준)

@@ -239,10 +239,75 @@ export function calculateOffset(params) {
   };
 }
 
+/**
+ * 디지털 인쇄 견적 계산
+ */
+export function calculateDigital(params) {
+  const {
+    quantity,
+    pages,
+    coverPaper = '아트250',
+    innerPaper = '미색80',
+    digitalColorType = '컬러',
+    customPrices = {}
+  } = params;
+
+  const numQuantity = Number(quantity) || 1;
+  const numPages = Number(pages) || 1;
+
+  // 내지 인쇄 기본 단가 (컬러=300원, 흑백=80원)
+  const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
+
+  // 단가 설정 (사용자 수동 지정 또는 템플릿/색상 기본값)
+  const coverDesignPrice = customPrices.digitalCoverDesignPrice !== undefined ? Number(customPrices.digitalCoverDesignPrice) : 300000;
+  const innerEditPrice = customPrices.digitalInnerEditPrice !== undefined ? Number(customPrices.digitalInnerEditPrice) : 10040;
+  const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
+  const bindingPrice = customPrices.digitalBindingPrice !== undefined ? Number(customPrices.digitalBindingPrice) : 4000;
+
+  // 항목별 금액 계산
+  const coverDesignAmount = round(1 * coverDesignPrice);
+  const innerEditAmount = round(numPages * innerEditPrice);
+  const innerPrintAmount = round(numPages * numQuantity * innerPrintPrice);
+  const bindingAmount = round(numQuantity * bindingPrice);
+
+  const items = [
+    { key: 'digitalCoverDesignPrice', name: '편집 (표지 디자인)', qty: 1, unit: '식', unitPrice: coverDesignPrice, amount: coverDesignAmount, editable: true },
+    { key: 'digitalInnerEditPrice', name: '내지 편집', qty: numPages, unit: 'P', unitPrice: innerEditPrice, amount: innerEditAmount, editable: true },
+    { key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '도', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true },
+    { key: 'digitalBindingPrice', name: '제본 (표지제작포함)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true }
+  ];
+
+  const supplyPrice = items.reduce((acc, cur) => acc + cur.amount, 0);
+  const vat = round(supplyPrice * 0.1);
+  const grandTotal = supplyPrice + vat;
+
+  return {
+    type: '디지털',
+    digitalColorType,
+    quantity: numQuantity,
+    pages: numPages,
+    coverPaper,
+    innerPaper,
+    customPrices: {
+      digitalCoverDesignPrice: coverDesignPrice,
+      digitalInnerEditPrice: innerEditPrice,
+      digitalInnerPrintPrice: innerPrintPrice,
+      digitalBindingPrice: bindingPrice
+    },
+    items,
+    subTotal: supplyPrice,
+    supplyPrice,
+    vat,
+    grandTotal
+  };
+}
+
 export function calculateQuotation(params) {
   const { type } = params;
   if (type === '경인쇄') {
     return calculateKyung(params);
+  } else if (type === '디지털') {
+    return calculateDigital(params);
   } else {
     return calculateOffset(params);
   }

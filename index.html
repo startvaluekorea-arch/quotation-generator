@@ -104,6 +104,12 @@
                 <span class="radio-title">옵셋 인쇄</span>
                 <span class="radio-desc">대량 / 고품질 인쇄</span>
               </label>
+
+              <input type="radio" name="printType" id="type-digital" value="디지털" />
+              <label for="type-digital" class="segment-label">
+                <span class="radio-title">디지털 인쇄</span>
+                <span class="radio-desc">소량 고품질 / 책자</span>
+              </label>
             </div>
           </div>
 
@@ -144,6 +150,22 @@
               <option value="0">감액 없음 (0원)</option>
               <option value="custom">직접 입력</option>
             </select>
+          </div>
+
+          <!-- 디지털 인쇄 전용: 내지 인쇄 색상 선택 (디지털 선택 시 표시) -->
+          <div class="form-group" id="group-digital-options" style="display: none;">
+            <label>내지 인쇄 색상 선택 <span class="unit">(디지털 전용)</span></label>
+            <div class="segmented-control">
+              <input type="radio" name="digitalColorType" id="digital-color-color" value="컬러" checked />
+              <label for="digital-color-color" class="segment-label center-align">
+                <span class="radio-title">컬러 (300원)</span>
+              </label>
+
+              <input type="radio" name="digitalColorType" id="digital-color-bw" value="흑백" />
+              <label for="digital-color-bw" class="segment-label center-align">
+                <span class="radio-title">흑백 (80원)</span>
+              </label>
+            </div>
           </div>
 
           <!-- 커스텀 감액 금액 입력 (직접 입력 선택 시 노출) -->

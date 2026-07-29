@@ -14,6 +14,7 @@ const discountRateInput = document.getElementById('discountRate');
 
 const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
+const digitalOptionsGroup = document.getElementById('group-digital-options');
 
 const kyungDiscountSelect = document.getElementById('kyungDiscount');
 const kyungDiscountGroup = document.getElementById('group-kyung-discount');
@@ -102,6 +103,8 @@ function updateDefaultDiscountRate() {
     if (type === '경인쇄') {
       discountRateInput.value = 80;
       populateKyungDiscountOptions(size);
+    } else if (type === '디지털') {
+      discountRateInput.value = 100;
     } else {
       discountRateInput.value = 85;
     }
@@ -115,6 +118,7 @@ function toggleModeOptions() {
   if (type === '경인쇄') {
     kyungCoverDesignGroup.style.display = 'flex';
     kyungDiscountGroup.style.display = 'flex';
+    digitalOptionsGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
     if (kyungDiscountSelect.value === 'custom') {
@@ -122,10 +126,18 @@ function toggleModeOptions() {
     } else {
       kyungCustomDiscountGroup.style.display = 'none';
     }
+  } else if (type === '디지털') {
+    kyungCoverDesignGroup.style.display = 'none';
+    kyungDiscountGroup.style.display = 'none';
+    kyungCustomDiscountGroup.style.display = 'none';
+    digitalOptionsGroup.style.display = 'flex';
+    offsetPostprocessingGroup.style.display = 'none';
+    offsetRatesGroup.style.display = 'none';
   } else {
     kyungCoverDesignGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
+    digitalOptionsGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'flex';
     offsetRatesGroup.style.display = 'flex';
   }
@@ -158,6 +170,7 @@ function updateSummaryAndBreakdownOnly() {
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
+  const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
 
   const calc = calculateQuotation({
     type,
@@ -176,6 +189,7 @@ function updateSummaryAndBreakdownOnly() {
     optEpoxy,
     optFoil,
     optKyungCoverDesign,
+    digitalColorType,
     customPrices: userCustomPrices
   });
 
@@ -198,6 +212,12 @@ function updateSummaryAndBreakdownOnly() {
       <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
       <div class="breakdown-row"><span>이윤 (적용):</span><span>${formatCurrency(calc.totalMargin)}</span></div>
       <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+    `;
+  } else if (calc.type === '디지털') {
+    breakdownContainer.innerHTML = `
+      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
       <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
       <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
     `;
@@ -238,8 +258,9 @@ function updateFullPreview() {
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
+  const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
 
-  previewBadge.textContent = `${type} ${size} (${discountRate}% 할인)`;
+  previewBadge.textContent = type === '디지털' ? `${type} 인쇄 (${digitalColorType})` : `${type} ${size} (${discountRate}% 할인)`;
 
   const calc = calculateQuotation({
     type,
@@ -258,6 +279,7 @@ function updateFullPreview() {
     optEpoxy,
     optFoil,
     optKyungCoverDesign,
+    digitalColorType,
     customPrices: userCustomPrices
   });
 
@@ -319,6 +341,12 @@ function updateFullPreview() {
       <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
       <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
     `;
+  } else if (calc.type === '디지털') {
+    breakdownContainer.innerHTML = `
+      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+    `;
   } else {
     breakdownContainer.innerHTML = `
       <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
@@ -350,6 +378,13 @@ document.querySelectorAll('input[name="printType"]').forEach(el => {
   });
 });
 
+document.querySelectorAll('input[name="digitalColorType"]').forEach(el => {
+  el.addEventListener('change', () => {
+    delete userCustomPrices['digitalInnerPrintPrice'];
+    updateFullPreview();
+  });
+});
+
 document.querySelectorAll('input[name="printSize"]').forEach(el => {
   el.addEventListener('change', () => {
     const size = getSelectedRadioValue('printSize');
@@ -377,6 +412,7 @@ btnDownload.addEventListener('click', async () => {
   const optEpoxy = optEpoxyCheck.checked;
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
+  const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
 
   btnDownload.disabled = true;
   const originalText = btnDownload.innerHTML;
@@ -400,6 +436,7 @@ btnDownload.addEventListener('click', async () => {
       optEpoxy,
       optFoil,
       optKyungCoverDesign,
+      digitalColorType,
       customPrices: userCustomPrices
     });
   } catch (err) {

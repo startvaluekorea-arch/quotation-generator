@@ -1,5 +1,6 @@
 node_modules
 dist
+~$*.xlsx
 .DS_Store
 *.log
 test_*.mjs

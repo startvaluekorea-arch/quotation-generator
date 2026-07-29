@@ -275,7 +275,7 @@ function updateFullPreview() {
     const noteHtml = item.note ? `<span class="item-note">(${item.note})</span>` : '';
 
     let priceCellHtml = '';
-    if (calc.type === '옵셋' && item.editable) {
+    if (item.editable) {
       priceCellHtml = `<input type="text" inputmode="numeric" class="price-input" data-key="${item.key}" value="${item.unitPrice}" />`;
     } else {
       priceCellHtml = item.unitPrice ? formatCurrency(item.unitPrice) : '-';

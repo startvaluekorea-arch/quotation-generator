@@ -197,10 +197,11 @@ export async function downloadExcelQuotation(params) {
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'I16', i16Formula);
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'I17', i17Formula);
 
-    // 18행: 표지디자인 옵션 제어 (선택 시 18행 숨김 해제 및 D18 셀에 300,000 입력, 미선택 시 18행 숨김 유지 및 0 입력)
+    // 18행: 표지디자인 옵션 제어 (선택 시 18행 숨김 해제 및 D18 셀에 표지디자인 단가 입력, 미선택 시 18행 숨김 유지 및 0 입력)
     if (optKyungCoverDesign) {
+      const kyungCoverDesignPrice = customPrices.kyungCoverDesignPrice !== undefined ? Number(customPrices.kyungCoverDesignPrice) : 300000;
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'D18', 300000, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'D18', kyungCoverDesignPrice, false);
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, true);
       sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);

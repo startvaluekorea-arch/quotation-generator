@@ -13,6 +13,12 @@ function escapeXml(str) {
  * sheet1.xml 내의 특정 셀Ref(예: 'B4', 'A5', 'G10')에 값(value)을 주입
  */
 function updateCellInSheetXml(sheetXml, cellRef, newValue, isString = false) {
+  // Self-closing cell (<c ... r="cellRef" ... />)을 표준 닫는 태그(<c ...></c>) 형태로 정규화
+  const selfClosingRegex = new RegExp(`(<c [^>]*r="${cellRef}"[^>]*)/>`, 's');
+  if (selfClosingRegex.test(sheetXml)) {
+    sheetXml = sheetXml.replace(selfClosingRegex, `$1></c>`);
+  }
+
   const cellRegex = new RegExp(`(<c [^>]*r="${cellRef}"[^>]*>)(.*?)(</c>)`, 's');
   const match = sheetXml.match(cellRegex);
 
@@ -44,6 +50,11 @@ function updateCellInSheetXml(sheetXml, cellRef, newValue, isString = false) {
  * sheet1.xml 내의 특정 셀Ref의 수식(<f>...</f>)을 새 수식으로 업데이트
  */
 function updateCellFormulaInSheetXml(sheetXml, cellRef, newFormula) {
+  const selfClosingRegex = new RegExp(`(<c [^>]*r="${cellRef}"[^>]*)/>`, 's');
+  if (selfClosingRegex.test(sheetXml)) {
+    sheetXml = sheetXml.replace(selfClosingRegex, `$1></c>`);
+  }
+
   const cellRegex = new RegExp(`(<c [^>]*r="${cellRef}"[^>]*>)(.*?)(</c>)`, 's');
   const match = sheetXml.match(cellRegex);
 
@@ -186,15 +197,13 @@ export async function downloadExcelQuotation(params) {
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'I16', i16Formula);
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'I17', i17Formula);
 
-    // 18행: 표지디자인 옵션 제어 (선택 시 18행 숨김 해제 및 D18, D12 셀에 300,000 입력, 미선택 시 18행 숨김 유지 및 0 입력)
+    // 18행: 표지디자인 옵션 제어 (선택 시 18행 숨김 해제 및 D18 셀에 300,000 입력, 미선택 시 18행 숨김 유지 및 0 입력)
     if (optKyungCoverDesign) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, false);
       sheetXml = updateCellInSheetXml(sheetXml, 'D18', 300000, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'D12', 300000, false);
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, true);
       sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'D12', 0, false);
     }
   } else {
     // 옵셋 (최신 수정 템플릿 기준)

@@ -220,12 +220,37 @@ export async function downloadExcelQuotation(params) {
     }
   } else if (type === '디지털') {
     const digitalColorType = params.digitalColorType || '컬러';
+    const optDigitalCoverType = params.optDigitalCoverType || false;
+    const optDigitalInnerEdit = params.optDigitalInnerEdit || false;
+
     const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
     const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
 
     // 디지털 인쇄 부수(G14) 및 페이지수(H14) 주입
     sheetXml = updateCellInSheetXml(sheetXml, 'G14', numQuantity, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'H14', numPages, false);
+
+    // 15행 (책자-표지조판) 옵션 제어
+    if (optDigitalCoverType) {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 15, false); // 숨김 해제
+      sheetXml = updateCellInSheetXml(sheetXml, 'E15', 1, false); // E15 = 1
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 28, true); // 28행 숨김
+    } else {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 15, true); // 숨김 유지
+      sheetXml = updateCellInSheetXml(sheetXml, 'E15', 0, false);
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 28, false); // 28행 숨김 해제
+    }
+
+    // 16행 (책자-내지편집) 옵션 제어
+    if (optDigitalInnerEdit) {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 16, false); // 숨김 해제
+      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E16', 'H14'); // E16 = H14 셀 참조
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 29, true); // 29행 숨김
+    } else {
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 16, true); // 숨김 유지
+      sheetXml = updateCellInSheetXml(sheetXml, 'E16', 0, false);
+      sheetXml = setRowHiddenInSheetXml(sheetXml, 29, false); // 29행 숨김 해제
+    }
 
     // D17: 내지 인쇄 색상 주입 ('컬러' 또는 '흑백')
     sheetXml = updateCellInSheetXml(sheetXml, 'D17', digitalColorType, true);

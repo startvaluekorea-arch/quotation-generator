@@ -249,6 +249,8 @@ export function calculateDigital(params) {
     coverPaper = '아트250',
     innerPaper = '미색80',
     digitalColorType = '컬러',
+    optDigitalCoverType = false,
+    optDigitalInnerEdit = false,
     customPrices = {}
   } = params;
 
@@ -264,18 +266,26 @@ export function calculateDigital(params) {
   const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
   const bindingPrice = customPrices.digitalBindingPrice !== undefined ? Number(customPrices.digitalBindingPrice) : 4000;
 
-  // 항목별 금액 계산
-  const coverDesignAmount = round(1 * coverDesignPrice);
-  const innerEditAmount = round(numPages * innerEditPrice);
+  const items = [];
+
+  // 책자-표지조판 (선택 시만 가산)
+  if (optDigitalCoverType) {
+    const coverDesignAmount = round(1 * coverDesignPrice);
+    items.push({ key: 'digitalCoverDesignPrice', name: '편집 (책자-표지조판)', qty: 1, unit: '식', unitPrice: coverDesignPrice, amount: coverDesignAmount, editable: true });
+  }
+
+  // 책자-내지편집 (선택 시만 가산)
+  if (optDigitalInnerEdit) {
+    const innerEditAmount = round(numPages * innerEditPrice);
+    items.push({ key: 'digitalInnerEditPrice', name: '책자-내지편집', qty: numPages, unit: 'P', unitPrice: innerEditPrice, amount: innerEditAmount, editable: true });
+  }
+
+  // 내지 인쇄 & 제본 (기본 포함)
   const innerPrintAmount = round(numPages * numQuantity * innerPrintPrice);
   const bindingAmount = round(numQuantity * bindingPrice);
 
-  const items = [
-    { key: 'digitalCoverDesignPrice', name: '편집 (표지 디자인)', qty: 1, unit: '식', unitPrice: coverDesignPrice, amount: coverDesignAmount, editable: true },
-    { key: 'digitalInnerEditPrice', name: '내지 편집', qty: numPages, unit: 'P', unitPrice: innerEditPrice, amount: innerEditAmount, editable: true },
-    { key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true },
-    { key: 'digitalBindingPrice', name: '제본 (표지제작포함)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true }
-  ];
+  items.push({ key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true });
+  items.push({ key: 'digitalBindingPrice', name: '제본 (표지제작포함)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true });
 
   const supplyPrice = items.reduce((acc, cur) => acc + cur.amount, 0);
   const vat = round(supplyPrice * 0.1);
@@ -284,6 +294,8 @@ export function calculateDigital(params) {
   return {
     type: '디지털',
     digitalColorType,
+    optDigitalCoverType,
+    optDigitalInnerEdit,
     quantity: numQuantity,
     pages: numPages,
     coverPaper,

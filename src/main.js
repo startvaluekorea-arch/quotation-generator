@@ -16,6 +16,8 @@ const discountRateGroup = document.getElementById('group-discount-rate');
 const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
 const digitalOptionsGroup = document.getElementById('group-digital-options');
+const optDigitalCoverTypeCheck = document.getElementById('opt-digital-cover-type');
+const optDigitalInnerEditCheck = document.getElementById('opt-digital-inner-edit');
 
 const kyungDiscountSelect = document.getElementById('kyungDiscount');
 const kyungDiscountGroup = document.getElementById('group-kyung-discount');
@@ -175,6 +177,8 @@ function updateSummaryAndBreakdownOnly() {
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
   const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
+  const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
+  const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
 
   const calc = calculateQuotation({
     type,
@@ -194,6 +198,8 @@ function updateSummaryAndBreakdownOnly() {
     optFoil,
     optKyungCoverDesign,
     digitalColorType,
+    optDigitalCoverType,
+    optDigitalInnerEdit,
     customPrices: userCustomPrices
   });
 
@@ -263,6 +269,8 @@ function updateFullPreview() {
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
   const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
+  const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
+  const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
 
   previewBadge.textContent = type === '디지털' ? `${type} 인쇄 (${digitalColorType})` : `${type} ${size} (${discountRate}% 할인)`;
 
@@ -284,6 +292,8 @@ function updateFullPreview() {
     optFoil,
     optKyungCoverDesign,
     digitalColorType,
+    optDigitalCoverType,
+    optDigitalInnerEdit,
     customPrices: userCustomPrices
   });
 
@@ -371,8 +381,8 @@ function updateFullPreview() {
   el.addEventListener('change', updateFullPreview);
 });
 
-[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck].forEach(el => {
-  el.addEventListener('change', updateFullPreview);
+[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck].forEach(el => {
+  if (el) el.addEventListener('change', updateFullPreview);
 });
 
 document.querySelectorAll('input[name="printType"]').forEach(el => {
@@ -417,6 +427,8 @@ btnDownload.addEventListener('click', async () => {
   const optFoil = optFoilCheck.checked;
   const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
   const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
+  const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
+  const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
 
   btnDownload.disabled = true;
   const originalText = btnDownload.innerHTML;
@@ -441,6 +453,8 @@ btnDownload.addEventListener('click', async () => {
       optFoil,
       optKyungCoverDesign,
       digitalColorType,
+      optDigitalCoverType,
+      optDigitalInnerEdit,
       customPrices: userCustomPrices
     });
   } catch (err) {

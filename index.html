@@ -152,10 +152,10 @@
             </select>
           </div>
 
-          <!-- 디지털 인쇄 전용: 내지 인쇄 색상 선택 (디지털 선택 시 표시) -->
+          <!-- 디지털 인쇄 전용: 내지 인쇄 색상 및 추가 옵션 선택 (디지털 선택 시 표시) -->
           <div class="form-group" id="group-digital-options" style="display: none;">
-            <label>내지 인쇄 색상 선택 <span class="unit">(디지털 전용)</span></label>
-            <div class="segmented-control">
+            <label>디지털 인쇄 옵션 선택 <span class="unit">(디지털 전용)</span></label>
+            <div class="segmented-control" style="margin-bottom: 12px;">
               <input type="radio" name="digitalColorType" id="digital-color-color" value="컬러" checked />
               <label for="digital-color-color" class="segment-label center-align">
                 <span class="radio-title">컬러 (기본 300원)</span>
@@ -164,6 +164,17 @@
               <input type="radio" name="digitalColorType" id="digital-color-bw" value="흑백" />
               <label for="digital-color-bw" class="segment-label center-align">
                 <span class="radio-title">흑백 (기본 80원)</span>
+              </label>
+            </div>
+
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-digital-cover-type" />
+                <span class="checkbox-text">책자-표지조판 <span class="unit">(300,000원)</span></span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-digital-inner-edit" />
+                <span class="checkbox-text">책자-내지편집 <span class="unit">(P당 10,040원)</span></span>
               </label>
             </div>
           </div>

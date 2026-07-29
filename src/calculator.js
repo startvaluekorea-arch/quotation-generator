@@ -391,7 +391,8 @@ export function calculateDigital(params) {
 }
 
 export function calculateQuotation(params) {
-  const { type } = params;
+  const type = params.type || '옵셋';
+  
   if (type === '경인쇄') {
     return calculateKyung(params);
   } else if (type === '디지털') {

@@ -74,8 +74,20 @@ function getSelectedRadioValue(name) {
 let lastType = '';
 let lastSize = '';
 
-// 사용자가 수동 수정한 단가 기억 객체
-const userCustomPrices = {};
+// 사용자가 수동 수정한 단가 기억 객체 (인쇄방식별 독립 관리)
+const userCustomPrices = {
+  '경인쇄': {},
+  '옵셋': {},
+  '디지털': {}
+};
+
+function getCurrentCustomPrices() {
+  const type = getSelectedRadioValue('printType') || '옵셋';
+  if (!userCustomPrices[type]) {
+    userCustomPrices[type] = {};
+  }
+  return userCustomPrices[type];
+}
 
 const kyungOptionsMap = {
   '10절': [
@@ -173,9 +185,11 @@ function getActiveKyungDiscount() {
 }
 
 /**
- * 계산 결과를 기반으로 요약 카드 및 세부 Breakdown만 빠르게 갱신 (테이블 DOM 유지)
+ * 현재 선택된 인쇄 방식에만 해당하는 샌드박스 파라미터 생성
  */
-function updateSummaryAndBreakdownOnly() {
+function getQuotationParams() {
+  const type = getSelectedRadioValue('printType') || '옵셋';
+  const size = getSelectedRadioValue('printSize') || '10절';
   const customerName = customerInput.value.trim();
   const dateStr = dateInput.value;
   const title = titleInput.value.trim();
@@ -183,29 +197,10 @@ function updateSummaryAndBreakdownOnly() {
   const pages = parseInt(pagesInput.value, 10) || 1;
   const coverPaper = coverPaperInput.value.trim() || '아트250';
   const innerPaper = innerPaperInput.value.trim() || '미색80';
-  const type = getSelectedRadioValue('printType');
-  const size = getSelectedRadioValue('printSize');
-  const discountRate = parseInt(discountRateInput.value, 10) || 100;
-  const kyungDiscount = getActiveKyungDiscount();
-  const overheadRate = parseInt(overheadRateInput.value, 10) || 0;
-  const profitRate = parseInt(profitRateInput.value, 10) || 0;
-  const optEpoxy = optEpoxyCheck.checked;
-  const optFoil = optFoilCheck.checked;
-  const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
-  const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
-  const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
-  const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
-  const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
-  const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
-  const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
-  const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
-  const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
-  const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
-  const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
-  const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
-  const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
 
-  const calc = calculateQuotation({
+  const customPrices = getCurrentCustomPrices();
+
+  const baseParams = {
     type,
     size,
     customerName,
@@ -213,29 +208,80 @@ function updateSummaryAndBreakdownOnly() {
     dateStr,
     quantity,
     pages,
-    colorPages,
     coverPaper,
     innerPaper,
-    discountRate,
-    kyungDiscount,
-    overheadRate,
-    profitRate,
-    optEpoxy,
-    optFoil,
-    optKyungCoverDesign,
-    optDigitalCoverType,
-    optDigitalInnerEdit,
-    optDigitalXBanner,
-    digitalXBannerSize,
-    digitalXBannerQty,
-    digitalXBannerStand,
-    optDigitalBanner,
-    digitalBannerSize,
-    digitalBannerQty,
-    optDigitalNameplate,
-    digitalNameplateQty,
-    customPrices: userCustomPrices
-  });
+    customPrices
+  };
+
+  if (type === '경인쇄') {
+    const discountRate = parseInt(discountRateInput.value, 10) || 80;
+    const kyungDiscount = getActiveKyungDiscount();
+    const optKyungCoverDesign = optKyungCoverDesignCheck ? optKyungCoverDesignCheck.checked : false;
+
+    return {
+      ...baseParams,
+      discountRate,
+      kyungDiscount,
+      optKyungCoverDesign
+    };
+  } else if (type === '디지털') {
+    const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
+    const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
+    const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
+
+    const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
+    const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
+    const digitalXBannerQty = digitalXBannerQtyInput ? parseInt(digitalXBannerQtyInput.value, 10) || 1 : 1;
+    const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
+
+    const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
+    const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
+    const digitalBannerQty = digitalBannerQtyInput ? parseInt(digitalBannerQtyInput.value, 10) || 1 : 1;
+
+    const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
+    const digitalNameplateQty = digitalNameplateQtyInput ? parseInt(digitalNameplateQtyInput.value, 10) || 1 : 1;
+
+    return {
+      ...baseParams,
+      discountRate: 100,
+      colorPages,
+      optDigitalCoverType,
+      optDigitalInnerEdit,
+      optDigitalXBanner,
+      digitalXBannerSize,
+      digitalXBannerQty,
+      digitalXBannerStand,
+      optDigitalBanner,
+      digitalBannerSize,
+      digitalBannerQty,
+      optDigitalNameplate,
+      digitalNameplateQty
+    };
+  } else {
+    // 옵셋 인쇄
+    const discountRate = parseInt(discountRateInput.value, 10) || 85;
+    const overheadRate = parseInt(overheadRateInput.value, 10) || 10;
+    const profitRate = parseInt(profitRateInput.value, 10) || 20;
+    const optEpoxy = optEpoxyCheck ? optEpoxyCheck.checked : false;
+    const optFoil = optFoilCheck ? optFoilCheck.checked : false;
+
+    return {
+      ...baseParams,
+      discountRate,
+      overheadRate,
+      profitRate,
+      optEpoxy,
+      optFoil
+    };
+  }
+}
+
+/**
+ * 계산 결과를 기반으로 요약 카드 및 세부 Breakdown만 빠르게 갱신 (테이블 DOM 유지)
+ */
+function updateSummaryAndBreakdownOnly() {
+  const params = getQuotationParams();
+  const calc = calculateQuotation(params);
 
   // Update Summary Cards
   grandTotalEl.textContent = formatCurrency(calc.grandTotal);
@@ -268,10 +314,10 @@ function updateSummaryAndBreakdownOnly() {
   } else {
     breakdownContainer.innerHTML = `
       <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row"><span>일반관리비 (${overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
-      <div class="breakdown-row"><span>이윤 (${profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
+      <div class="breakdown-row"><span>일반관리비 (${params.overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
+      <div class="breakdown-row"><span>이윤 (${params.profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
       <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
-      <div class="breakdown-row"><span>할인/네고 적용금액 (${discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
+      <div class="breakdown-row"><span>할인/네고 적용금액 (${params.discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
       <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
       <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
       <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
@@ -286,68 +332,10 @@ function updateFullPreview() {
   updateDefaultDiscountRate();
   toggleModeOptions();
 
-  const customerName = customerInput.value.trim();
-  const dateStr = dateInput.value;
-  const title = titleInput.value.trim();
-  const quantity = parseInt(quantityInput.value, 10) || 1;
-  const pages = parseInt(pagesInput.value, 10) || 1;
-  const coverPaper = coverPaperInput.value.trim() || '아트250';
-  const innerPaper = innerPaperInput.value.trim() || '미색80';
-  const type = getSelectedRadioValue('printType');
-  const size = getSelectedRadioValue('printSize');
-  const discountRate = parseInt(discountRateInput.value, 10) || 100;
-  const kyungDiscount = getActiveKyungDiscount();
-  const overheadRate = parseInt(overheadRateInput.value, 10) || 0;
-  const profitRate = parseInt(profitRateInput.value, 10) || 0;
-  const optEpoxy = optEpoxyCheck.checked;
-  const optFoil = optFoilCheck.checked;
-  const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
-  const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
-  const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
-  const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
-  const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
-  const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
-  const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
-  const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
-  const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
-  const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
-  const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
-  const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
-  const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
+  const params = getQuotationParams();
+  previewBadge.textContent = params.type === '디지털' ? `${params.type} 인쇄` : `${params.type} ${params.size} (${params.discountRate}% 할인)`;
 
-  previewBadge.textContent = type === '디지털' ? `${type} 인쇄` : `${type} ${size} (${discountRate}% 할인)`;
-
-  const calc = calculateQuotation({
-    type,
-    size,
-    customerName,
-    title,
-    dateStr,
-    quantity,
-    pages,
-    colorPages,
-    coverPaper,
-    innerPaper,
-    discountRate,
-    kyungDiscount,
-    overheadRate,
-    profitRate,
-    optEpoxy,
-    optFoil,
-    optKyungCoverDesign,
-    optDigitalCoverType,
-    optDigitalInnerEdit,
-    optDigitalXBanner,
-    digitalXBannerSize,
-    digitalXBannerQty,
-    digitalXBannerStand,
-    optDigitalBanner,
-    digitalBannerSize,
-    digitalBannerQty,
-    optDigitalNameplate,
-    digitalNameplateQty,
-    customPrices: userCustomPrices
-  });
+  const calc = calculateQuotation(params);
 
   // Update Summary Cards
   grandTotalEl.textContent = formatCurrency(calc.grandTotal);
@@ -386,11 +374,12 @@ function updateFullPreview() {
       // 숫자만 추출
       const rawVal = e.target.value.replace(/[^0-9]/g, '');
       const numVal = parseInt(rawVal, 10);
+      const currentPrices = getCurrentCustomPrices();
       
       if (!isNaN(numVal)) {
-        userCustomPrices[key] = numVal;
+        currentPrices[key] = numVal;
       } else {
-        userCustomPrices[key] = 0;
+        currentPrices[key] = 0;
       }
       
       // 입력 중에도 요약 카드 및 해당 행 금액 인라인 갱신 (입력창 DOM은 절대 건드리지 않음!)
@@ -416,10 +405,10 @@ function updateFullPreview() {
   } else {
     breakdownContainer.innerHTML = `
       <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row"><span>일반관리비 (${overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
-      <div class="breakdown-row"><span>이윤 (${profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
+      <div class="breakdown-row"><span>일반관리비 (${params.overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
+      <div class="breakdown-row"><span>이윤 (${params.profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
       <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
-      <div class="breakdown-row"><span>할인/네고 적용금액 (${discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
+      <div class="breakdown-row"><span>할인/네고 적용금액 (${params.discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
       <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
       <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
       <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
@@ -507,14 +496,14 @@ document.querySelectorAll('input[name="printType"]').forEach(el => {
 
 document.querySelectorAll('input[name="digitalColorType"]').forEach(el => {
   el.addEventListener('change', () => {
-    delete userCustomPrices['digitalInnerPrintPrice'];
+    if (userCustomPrices['디지털']) delete userCustomPrices['디지털']['digitalInnerPrintPrice'];
     updateFullPreview();
   });
 });
 
 document.querySelectorAll('input[name="digitalXBannerStand"]').forEach(el => {
   el.addEventListener('change', () => {
-    delete userCustomPrices['digitalXBannerMakePrice'];
+    if (userCustomPrices['디지털']) delete userCustomPrices['디지털']['digitalXBannerMakePrice'];
     updateFullPreview();
   });
 });
@@ -530,71 +519,14 @@ document.querySelectorAll('input[name="printSize"]').forEach(el => {
 
 // Download Button Click
 btnDownload.addEventListener('click', async () => {
-  const customerName = customerInput.value.trim();
-  const dateStr = dateInput.value;
-  const title = titleInput.value.trim();
-  const quantity = parseInt(quantityInput.value, 10) || 1;
-  const pages = parseInt(pagesInput.value, 10) || 1;
-  const coverPaper = coverPaperInput.value.trim() || '아트250';
-  const innerPaper = innerPaperInput.value.trim() || '미색80';
-  const type = getSelectedRadioValue('printType');
-  const size = getSelectedRadioValue('printSize');
-  const discountRate = parseInt(discountRateInput.value, 10) || 100;
-  const kyungDiscount = getActiveKyungDiscount();
-  const overheadRate = parseInt(overheadRateInput.value, 10) || 0;
-  const profitRate = parseInt(profitRateInput.value, 10) || 0;
-  const optEpoxy = optEpoxyCheck.checked;
-  const optFoil = optFoilCheck.checked;
-  const optKyungCoverDesign = optKyungCoverDesignCheck.checked;
-  const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
-  const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
-  const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
-  const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
-  const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
-  const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
-  const digitalXBannerStand = getSelectedRadioValue('digitalXBannerStand') || '거치대포함';
-  const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
-  const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
-  const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
-  const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
-  const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
+  const params = getQuotationParams();
 
   btnDownload.disabled = true;
   const originalText = btnDownload.innerHTML;
   btnDownload.innerHTML = '⏳ 엑셀 파일 생성 중...';
 
   try {
-    await downloadExcelQuotation({
-      type,
-      size,
-      customerName,
-      title,
-      dateStr,
-      quantity,
-      pages,
-      colorPages,
-      coverPaper,
-      innerPaper,
-      discountRate,
-      kyungDiscount,
-      overheadRate,
-      profitRate,
-      optEpoxy,
-      optFoil,
-      optKyungCoverDesign,
-      optDigitalCoverType,
-      optDigitalInnerEdit,
-      optDigitalXBanner,
-      digitalXBannerSize,
-      digitalXBannerQty,
-      digitalXBannerStand,
-      optDigitalBanner,
-      digitalBannerSize,
-      digitalBannerQty,
-      optDigitalNameplate,
-      digitalNameplateQty,
-      customPrices: userCustomPrices
-    });
+    await downloadExcelQuotation(params);
   } catch (err) {
     alert('엑셀 다운로드 중 오류가 발생했습니다: ' + err.message);
     console.error(err);

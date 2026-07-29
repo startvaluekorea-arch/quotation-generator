@@ -152,11 +152,17 @@
             </select>
           </div>
 
-          <!-- 디지털 인쇄 전용: 컬러 면수 및 추가 옵션 선택 (디지털 선택 시 표시) -->
+          <!-- 디지털 인쇄 전용: 컬러 면수/흑백 면수 및 추가 옵션 선택 (디지털 선택 시 표시) -->
           <div class="form-group" id="group-digital-options" style="display: none;">
-            <div class="form-group" style="margin-bottom: 12px;">
-              <label for="digitalColorPages">컬러 면수 <span class="unit">(P / E17 셀 주입)</span></label>
-              <input type="number" id="digitalColorPages" min="0" step="1" value="40" placeholder="예: 40 (총면수와 동일 시 18행 흑백 숨김)" />
+            <div class="form-row" style="margin-bottom: 12px;">
+              <div class="form-group">
+                <label for="digitalColorPages">컬러 면수 <span class="unit">(P)</span></label>
+                <input type="number" id="digitalColorPages" min="0" step="1" value="40" placeholder="예: 40" />
+              </div>
+              <div class="form-group">
+                <label for="digitalBWPages">흑백 면수 <span class="unit">(P)</span></label>
+                <input type="number" id="digitalBWPages" min="0" step="1" value="0" placeholder="예: 0" />
+              </div>
             </div>
 
             <label style="margin-top: 4px;">디지털 추가 옵션 선택</label>

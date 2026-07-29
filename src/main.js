@@ -17,6 +17,7 @@ const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design'
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
 const digitalOptionsGroup = document.getElementById('group-digital-options');
 const digitalColorPagesInput = document.getElementById('digitalColorPages');
+const digitalBWPagesInput = document.getElementById('digitalBWPages');
 const optDigitalCoverTypeCheck = document.getElementById('opt-digital-cover-type');
 const optDigitalInnerEditCheck = document.getElementById('opt-digital-inner-edit');
 
@@ -427,12 +428,54 @@ function updateFullPreview() {
 }
 
 // Form Event Listeners for Full Preview Update
-[customerInput, dateInput, titleInput, quantityInput, pagesInput, digitalColorPagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, digitalXBannerSizeInput, digitalXBannerQtyInput, digitalBannerSizeInput, digitalBannerQtyInput, digitalNameplateQtyInput].forEach(el => {
+[customerInput, dateInput, titleInput, quantityInput, pagesInput, digitalColorPagesInput, digitalBWPagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, digitalXBannerSizeInput, digitalXBannerQtyInput, digitalBannerSizeInput, digitalBannerQtyInput, digitalNameplateQtyInput].forEach(el => {
   if (el) {
-    el.addEventListener('input', updateFullPreview);
     el.addEventListener('change', updateFullPreview);
   }
 });
+
+// Bi-directional Auto Calculation between Total Pages, Color Pages, and BW Pages
+if (pagesInput) {
+  pagesInput.addEventListener('input', () => {
+    const totalPages = parseInt(pagesInput.value, 10) || 1;
+    if (digitalColorPagesInput && digitalBWPagesInput) {
+      let bwPages = parseInt(digitalBWPagesInput.value, 10);
+      if (isNaN(bwPages)) bwPages = 0;
+      bwPages = Math.max(0, Math.min(totalPages, bwPages));
+      digitalBWPagesInput.value = bwPages;
+      digitalColorPagesInput.value = totalPages - bwPages;
+    }
+    updateFullPreview();
+  });
+}
+
+if (digitalColorPagesInput) {
+  digitalColorPagesInput.addEventListener('input', () => {
+    const totalPages = parseInt(pagesInput.value, 10) || 1;
+    let colorPages = parseInt(digitalColorPagesInput.value, 10);
+    if (isNaN(colorPages)) colorPages = totalPages;
+    colorPages = Math.max(0, Math.min(totalPages, colorPages));
+    digitalColorPagesInput.value = colorPages;
+    if (digitalBWPagesInput) {
+      digitalBWPagesInput.value = totalPages - colorPages;
+    }
+    updateFullPreview();
+  });
+}
+
+if (digitalBWPagesInput) {
+  digitalBWPagesInput.addEventListener('input', () => {
+    const totalPages = parseInt(pagesInput.value, 10) || 1;
+    let bwPages = parseInt(digitalBWPagesInput.value, 10);
+    if (isNaN(bwPages)) bwPages = 0;
+    bwPages = Math.max(0, Math.min(totalPages, bwPages));
+    digitalBWPagesInput.value = bwPages;
+    if (digitalColorPagesInput) {
+      digitalColorPagesInput.value = totalPages - bwPages;
+    }
+    updateFullPreview();
+  });
+}
 
 function toggleDigitalSubOptions() {
   if (optDigitalXBannerCheck && digitalXBannerGroup) {

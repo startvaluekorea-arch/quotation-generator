@@ -179,6 +179,16 @@ export async function downloadExcelQuotation(params) {
     // D17: 조판생략 감액 차감 금액
     sheetXml = updateCellInSheetXml(sheetXml, 'D17', numKyungDiscount, false);
 
+    // K16: 표지 종이 종류 (예: 아트250)
+    if (coverPaper) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'K16', coverPaper, true);
+    }
+
+    // K17: 내지 종이 종류 (예: 미색80)
+    if (innerPaper) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'K17', innerPaper, true);
+    }
+
     // H16, H17: 할인율 곱하는 텍스트 주입 (예: " * 75 %")
     const discountText = ` * ${numDiscountRate} %`;
     sheetXml = updateCellInSheetXml(sheetXml, 'H16', discountText, true);

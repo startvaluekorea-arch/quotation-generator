@@ -129,6 +129,37 @@
             </div>
           </div>
 
+          <!-- 경인쇄 전용: 표지 인쇄 도수 및 코팅 옵션 선택 (경인쇄 선택 시 표시) -->
+          <div class="form-row" id="group-kyung-cover-options" style="display: none;">
+            <div class="form-group">
+              <label>표지 인쇄 도수 <span class="unit">(경인쇄 전용)</span></label>
+              <div class="segmented-control">
+                <input type="radio" name="kyungCoverType" id="kyung-cover-color" value="컬러표지" checked />
+                <label for="kyung-cover-color" class="segment-label center-align">
+                  <span class="radio-title">컬러표지</span>
+                </label>
+                <input type="radio" name="kyungCoverType" id="kyung-cover-bw" value="흑백표지" />
+                <label for="kyung-cover-bw" class="segment-label center-align">
+                  <span class="radio-title">흑백표지</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>표지 코팅 옵션 <span class="unit">(경인쇄 전용)</span></label>
+              <div class="segmented-control">
+                <input type="radio" name="kyungCoatingType" id="kyung-coating-matte" value="무광코팅" checked />
+                <label for="kyung-coating-matte" class="segment-label center-align">
+                  <span class="radio-title">무광코팅</span>
+                </label>
+                <input type="radio" name="kyungCoatingType" id="kyung-coating-none" value="코팅없음" />
+                <label for="kyung-coating-none" class="segment-label center-align">
+                  <span class="radio-title">코팅없음</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
           <!-- 경인쇄 전용: 표지디자인 옵션 선택 (경인쇄 선택 시 표시) -->
           <div class="form-group" id="group-kyung-cover-design" style="display: none;">
             <label>표지디자인 옵션 선택 <span class="unit">(경인쇄 전용)</span></label>

@@ -13,8 +13,10 @@ const innerPaperInput = document.getElementById('innerPaper');
 const discountRateInput = document.getElementById('discountRate');
 const discountRateGroup = document.getElementById('group-discount-rate');
 
+const kyungCoverOptionsGroup = document.getElementById('group-kyung-cover-options');
 const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
+
 const digitalOptionsGroup = document.getElementById('group-digital-options');
 const digitalColorPagesInput = document.getElementById('digitalColorPages');
 const digitalBWPagesInput = document.getElementById('digitalBWPages');
@@ -147,6 +149,7 @@ function updateDefaultDiscountRate() {
 function toggleModeOptions() {
   const type = getSelectedRadioValue('printType');
   if (type === '경인쇄') {
+    if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'flex';
     kyungCoverDesignGroup.style.display = 'flex';
     kyungDiscountGroup.style.display = 'flex';
     digitalOptionsGroup.style.display = 'none';
@@ -159,6 +162,7 @@ function toggleModeOptions() {
       kyungCustomDiscountGroup.style.display = 'none';
     }
   } else if (type === '디지털') {
+    if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'none';
     kyungCoverDesignGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
@@ -167,6 +171,7 @@ function toggleModeOptions() {
     offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'none';
   } else {
+    if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'none';
     kyungCoverDesignGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
@@ -217,12 +222,16 @@ function getQuotationParams() {
     const discountRate = parseInt(discountRateInput.value, 10) || 80;
     const kyungDiscount = getActiveKyungDiscount();
     const optKyungCoverDesign = optKyungCoverDesignCheck ? optKyungCoverDesignCheck.checked : false;
+    const kyungCoverType = getSelectedRadioValue('kyungCoverType') || '컬러표지';
+    const kyungCoatingType = getSelectedRadioValue('kyungCoatingType') || '무광코팅';
 
     return {
       ...baseParams,
       discountRate,
       kyungDiscount,
-      optKyungCoverDesign
+      optKyungCoverDesign,
+      kyungCoverType,
+      kyungCoatingType
     };
   } else if (type === '디지털') {
     const colorPages = digitalColorPagesInput ? parseInt(digitalColorPagesInput.value, 10) : pages;
@@ -485,6 +494,12 @@ function toggleDigitalSubOptions() {
       updateFullPreview();
     });
   }
+});
+
+document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"]').forEach(el => {
+  el.addEventListener('change', () => {
+    updateFullPreview();
+  });
 });
 
 document.querySelectorAll('input[name="printType"]').forEach(el => {

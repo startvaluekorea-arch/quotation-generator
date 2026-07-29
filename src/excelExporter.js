@@ -106,6 +106,8 @@ function processKyungExcel(sheetXml, params) {
     pages,
     discountRate = 80,
     kyungDiscount = 3500,
+    kyungCoverType = '컬러표지',
+    kyungCoatingType = '무광코팅',
     optKyungCoverDesign = false,
     coverPaper = '아트250',
     innerPaper = '미색80',
@@ -117,11 +119,36 @@ function processKyungExcel(sheetXml, params) {
   const numDiscountRate = Number(discountRate) || 80;
   const numKyungDiscount = Number(kyungDiscount) || 0;
 
+  const isColor = kyungCoverType === '컬러표지';
+  const isMatte = kyungCoatingType === '무광코팅';
+
+  const colorDegreeStr = isColor ? '4도' : '1도';
+  const coatingStr = isMatte ? '무광코팅' : '코팅없음';
+  const c16Text = `${colorDegreeStr}, ${coatingStr}`;
+
+  let coverQty;
+  if (size === '10절') {
+    if (isColor && isMatte) coverQty = 20;
+    else if (isColor && !isMatte) coverQty = 15;
+    else if (!isColor && isMatte) coverQty = 12.5;
+    else coverQty = 7.5;
+  } else {
+    // 16절
+    if (isColor && isMatte) coverQty = 18;
+    else if (isColor && !isMatte) coverQty = 13;
+    else if (!isColor && isMatte) coverQty = 10.5;
+    else coverQty = 5.5;
+  }
+
   sheetXml = updateCellInSheetXml(sheetXml, 'J10', numPages, false);
   sheetXml = updateCellInSheetXml(sheetXml, 'F12', numQuantity, false);
 
-  const coverQty = size === '10절' ? 20 : 18;
+  // C16: 표지 인쇄도수/코팅 텍스트 주입
+  sheetXml = updateCellInSheetXml(sheetXml, 'C16', c16Text, true);
+
+  // G16: 표지 수량 주입
   sheetXml = updateCellInSheetXml(sheetXml, 'G16', coverQty, false);
+
   sheetXml = updateCellInSheetXml(sheetXml, 'D17', numKyungDiscount, false);
 
   if (coverPaper) {

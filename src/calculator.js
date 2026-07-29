@@ -23,29 +23,51 @@ function getTruncation(val) {
  * 경인쇄 (10절 / 16절) 견적 계산
  */
 export function calculateKyung(params) {
-  const { size, quantity, pages, discountRate = 80, kyungDiscount = 3500, coverPaper = '아트250', innerPaper = '미색80', optKyungCoverDesign = false, customPrices = {} } = params;
+  const {
+    size,
+    quantity,
+    pages,
+    discountRate = 80,
+    kyungDiscount = 3500,
+    kyungCoverType = '컬러표지',
+    kyungCoatingType = '무광코팅',
+    coverPaper = '아트250',
+    innerPaper = '미색80',
+    optKyungCoverDesign = false,
+    customPrices = {}
+  } = params;
+
+  const isColor = kyungCoverType === '컬러표지';
+  const isMatte = kyungCoatingType === '무광코팅';
+
+  const colorDegreeStr = isColor ? '4도' : '1도';
+  const coatingStr = isMatte ? '무광코팅' : '코팅없음';
+  const c16Text = `${colorDegreeStr}, ${coatingStr}`;
+
+  let g16;
+  if (size === '10절') {
+    if (isColor && isMatte) g16 = 20;
+    else if (isColor && !isMatte) g16 = 15;
+    else if (!isColor && isMatte) g16 = 12.5;
+    else g16 = 7.5;
+  } else {
+    // 16절
+    if (isColor && isMatte) g16 = 18;
+    else if (isColor && !isMatte) g16 = 13;
+    else if (!isColor && isMatte) g16 = 10.5;
+    else g16 = 5.5;
+  }
 
   const d16 = 15370;
   const e16 = quantity > 50 ? quantity - 50 : 0;
   const h16Rate = discountRate / 100;
-  
-  let g16, d17, baseCost, extraRate, g17;
 
-  if (size === '10절') {
-    g16 = 20;
-    d17 = Number(kyungDiscount);
-    baseCost = 12150 - d17;
-    extraRate = 157;
-    g17 = pages;
-  } else {
-    g16 = 18;
-    d17 = Number(kyungDiscount);
-    baseCost = 8180 - d17;
-    extraRate = 101;
-    g17 = pages;
-  }
+  const d17 = Number(kyungDiscount);
+  const baseCost = size === '10절' ? (12150 - d17) : (8180 - d17);
+  const extraRate = size === '10절' ? 157 : 101;
+  const g17 = pages;
 
-  // 16행 (표지 4색, 단면)
+  // 16행 (표지 인쇄)
   const i16 = (d16 + (e16 / 10) * 183) * g16 * h16Rate;
 
   // 17행 (내지 1색, 양면)
@@ -59,7 +81,7 @@ export function calculateKyung(params) {
   const discountNote = d17 > 0 ? ` (조판생략감액: ${d17.toLocaleString()}원 차감)` : '';
 
   const items = [
-    { key: 'kyungCover', name: `표지 (4색, 단면)`, qty: g16, unitPrice: d16, amount: round(i16), note: `${coverPaper}, ${discountRate}% 할인적용` },
+    { key: 'kyungCover', name: `표지 (${c16Text})`, qty: g16, unitPrice: d16, amount: round(i16), note: `${coverPaper}, ${discountRate}% 할인적용` },
     { key: 'kyungInner', name: `내지 (1색, 양면)${discountNote}`, qty: g17, unitPrice: d17, amount: round(i17), note: `${innerPaper}, ${discountRate}% 할인적용` }
   ];
 
@@ -77,6 +99,10 @@ export function calculateKyung(params) {
   return {
     type: '경인쇄',
     size,
+    kyungCoverType,
+    kyungCoatingType,
+    c16Text,
+    g16,
     discountRate,
     coverPaper,
     innerPaper,

@@ -273,7 +273,7 @@ export function calculateDigital(params) {
   const items = [
     { key: 'digitalCoverDesignPrice', name: '편집 (표지 디자인)', qty: 1, unit: '식', unitPrice: coverDesignPrice, amount: coverDesignAmount, editable: true },
     { key: 'digitalInnerEditPrice', name: '내지 편집', qty: numPages, unit: 'P', unitPrice: innerEditPrice, amount: innerEditAmount, editable: true },
-    { key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '도', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true },
+    { key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true },
     { key: 'digitalBindingPrice', name: '제본 (표지제작포함)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true }
   ];
 

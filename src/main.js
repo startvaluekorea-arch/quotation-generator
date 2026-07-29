@@ -11,6 +11,7 @@ const pagesInput = document.getElementById('pages');
 const coverPaperInput = document.getElementById('coverPaper');
 const innerPaperInput = document.getElementById('innerPaper');
 const discountRateInput = document.getElementById('discountRate');
+const discountRateGroup = document.getElementById('group-discount-rate');
 
 const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
@@ -121,6 +122,7 @@ function toggleModeOptions() {
     digitalOptionsGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
+    if (discountRateGroup) discountRateGroup.style.display = 'flex';
     if (kyungDiscountSelect.value === 'custom') {
       kyungCustomDiscountGroup.style.display = 'flex';
     } else {
@@ -133,6 +135,7 @@ function toggleModeOptions() {
     digitalOptionsGroup.style.display = 'flex';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
+    if (discountRateGroup) discountRateGroup.style.display = 'none';
   } else {
     kyungCoverDesignGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
@@ -140,6 +143,7 @@ function toggleModeOptions() {
     digitalOptionsGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'flex';
     offsetRatesGroup.style.display = 'flex';
+    if (discountRateGroup) discountRateGroup.style.display = 'flex';
   }
 }
 

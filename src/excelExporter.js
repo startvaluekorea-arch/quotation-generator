@@ -234,9 +234,10 @@ export async function downloadExcelQuotation(params) {
     const colorPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : 300;
     const bwPrintPrice = customPrices.digitalBWPrintPrice !== undefined ? Number(customPrices.digitalBWPrintPrice) : 80;
 
-    // 디지털 인쇄 부수(E14) 및 총 면수(G14) 주입
+    // 디지털 인쇄 부수(E14), 총 면수(G14) 및 규격 크기(K14) 주입
     sheetXml = updateCellInSheetXml(sheetXml, 'E14', numQuantity, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'G14', numPages, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'K14', size, true);
 
     // E17: 컬러 면수 주입 (항상 주입하여 E18 수식 G14-E17 및 금액 정상 반영)
     sheetXml = updateCellInSheetXml(sheetXml, 'E17', numColorPages, false);

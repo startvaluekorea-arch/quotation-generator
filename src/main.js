@@ -606,4 +606,9 @@ btnDownload.addEventListener('click', async () => {
 
 // Initial Setup
 populateKyungDiscountOptions(getSelectedRadioValue('printSize'));
+if (pagesInput && digitalColorPagesInput && digitalBWPagesInput) {
+  const initPages = parseInt(pagesInput.value, 10) || 62;
+  digitalColorPagesInput.value = initPages;
+  digitalBWPagesInput.value = 0;
+}
 updateFullPreview();

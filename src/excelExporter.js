@@ -238,6 +238,13 @@ export async function downloadExcelQuotation(params) {
     sheetXml = updateCellInSheetXml(sheetXml, 'G14', numQuantity, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'H14', numPages, false);
 
+    // E17: 내지 페이지수 수식 (=H14) 주입
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E17', 'H14');
+    // F17: 내지 인쇄 부수 수식 (=G14) 주입
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'G14');
+    // E18: 제본 부수 수식 (=G14) 주입
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E18', 'G14');
+
     // 15행 (책자-표지조판) 옵션 제어
     if (optDigitalCoverType) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 15, false); // 숨김 해제
@@ -304,18 +311,35 @@ export async function downloadExcelQuotation(params) {
     // D17: 내지 인쇄 색상 주입 ('컬러' 또는 '흑백')
     sheetXml = updateCellInSheetXml(sheetXml, 'D17', digitalColorType, true);
 
-    // G17: 내지 인쇄 단가 주입 (컬러=300, 흑백=80 또는 수동 수정 단가)
-    sheetXml = updateCellInSheetXml(sheetXml, 'G17', innerPrintPrice, false);
-
-    // 커스텀 단가 주입 (G15: 표지 디자인, G16: 내지 편집, G18: 제본 등)
+    // G열 단가 주입 (실시간 프리뷰에서 사용자가 수정한 customPrices 100% 반영)
     if (customPrices.digitalCoverDesignPrice !== undefined) {
       sheetXml = updateCellInSheetXml(sheetXml, 'G15', Number(customPrices.digitalCoverDesignPrice), false);
     }
     if (customPrices.digitalInnerEditPrice !== undefined) {
       sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(customPrices.digitalInnerEditPrice), false);
     }
+    sheetXml = updateCellInSheetXml(sheetXml, 'G17', innerPrintPrice, false);
+
     if (customPrices.digitalBindingPrice !== undefined) {
       sheetXml = updateCellInSheetXml(sheetXml, 'G18', Number(customPrices.digitalBindingPrice), false);
+    }
+    if (customPrices.digitalXBannerDesignPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G20', Number(customPrices.digitalXBannerDesignPrice), false);
+    }
+    if (customPrices.digitalXBannerMakePrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G21', Number(customPrices.digitalXBannerMakePrice), false);
+    }
+    if (customPrices.digitalBannerDesignPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G23', Number(customPrices.digitalBannerDesignPrice), false);
+    }
+    if (customPrices.digitalBannerMakePrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G24', Number(customPrices.digitalBannerMakePrice), false);
+    }
+    if (customPrices.digitalNameplateDesignPrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G26', Number(customPrices.digitalNameplateDesignPrice), false);
+    }
+    if (customPrices.digitalNameplateMakePrice !== undefined) {
+      sheetXml = updateCellInSheetXml(sheetXml, 'G27', Number(customPrices.digitalNameplateMakePrice), false);
     }
   } else {
     // 옵셋 (최신 수정 템플릿 기준)

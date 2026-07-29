@@ -251,11 +251,22 @@ export function calculateDigital(params) {
     digitalColorType = '컬러',
     optDigitalCoverType = false,
     optDigitalInnerEdit = false,
+    optDigitalXBanner = false,
+    digitalXBannerSize = '600x1800mm',
+    digitalXBannerQty = 1,
+    optDigitalBanner = false,
+    digitalBannerSize = '4000x900mm',
+    digitalBannerQty = 1,
+    optDigitalNameplate = false,
+    digitalNameplateQty = 1,
     customPrices = {}
   } = params;
 
   const numQuantity = Number(quantity) || 1;
   const numPages = Number(pages) || 1;
+  const numXBannerQty = Number(digitalXBannerQty) || 1;
+  const numBannerQty = Number(digitalBannerQty) || 1;
+  const numNameplateQty = Number(digitalNameplateQty) || 1;
 
   // 내지 인쇄 기본 단가 (컬러=300원, 흑백=80원)
   const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
@@ -265,6 +276,15 @@ export function calculateDigital(params) {
   const innerEditPrice = customPrices.digitalInnerEditPrice !== undefined ? Number(customPrices.digitalInnerEditPrice) : 10040;
   const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
   const bindingPrice = customPrices.digitalBindingPrice !== undefined ? Number(customPrices.digitalBindingPrice) : 4000;
+
+  const xbannerDesignPrice = customPrices.digitalXBannerDesignPrice !== undefined ? Number(customPrices.digitalXBannerDesignPrice) : 60000;
+  const xbannerMakePrice = customPrices.digitalXBannerMakePrice !== undefined ? Number(customPrices.digitalXBannerMakePrice) : 60000;
+
+  const bannerDesignPrice = customPrices.digitalBannerDesignPrice !== undefined ? Number(customPrices.digitalBannerDesignPrice) : 60000;
+  const bannerMakePrice = customPrices.digitalBannerMakePrice !== undefined ? Number(customPrices.digitalBannerMakePrice) : 50000;
+
+  const nameplateDesignPrice = customPrices.digitalNameplateDesignPrice !== undefined ? Number(customPrices.digitalNameplateDesignPrice) : 50000;
+  const nameplateMakePrice = customPrices.digitalNameplateMakePrice !== undefined ? Number(customPrices.digitalNameplateMakePrice) : 4500;
 
   const items = [];
 
@@ -287,6 +307,30 @@ export function calculateDigital(params) {
   items.push({ key: 'digitalInnerPrintPrice', name: `내지 인쇄 (${digitalColorType})`, qty: `${numPages}P × ${numQuantity}부`, unit: '', unitPrice: innerPrintPrice, amount: innerPrintAmount, editable: true });
   items.push({ key: 'digitalBindingPrice', name: '제본 (표지제작포함)', qty: numQuantity, unit: '부', unitPrice: bindingPrice, amount: bindingAmount, editable: true });
 
+  // X배너
+  if (optDigitalXBanner) {
+    const xbDesignAmount = round(1 * xbannerDesignPrice);
+    const xbMakeAmount = round(numXBannerQty * xbannerMakePrice);
+    items.push({ key: 'digitalXBannerDesignPrice', name: 'X배너 (기본 디자인)', qty: 1, unit: '식', unitPrice: xbannerDesignPrice, amount: xbDesignAmount, editable: true });
+    items.push({ key: 'digitalXBannerMakePrice', name: `X배너 (${digitalXBannerSize})`, qty: numXBannerQty, unit: '부', unitPrice: xbannerMakePrice, amount: xbMakeAmount, editable: true });
+  }
+
+  // 현수막
+  if (optDigitalBanner) {
+    const bDesignAmount = round(1 * bannerDesignPrice);
+    const bMakeAmount = round(numBannerQty * bannerMakePrice);
+    items.push({ key: 'digitalBannerDesignPrice', name: '현수막 (기본 디자인)', qty: 1, unit: '식', unitPrice: bannerDesignPrice, amount: bDesignAmount, editable: true });
+    items.push({ key: 'digitalBannerMakePrice', name: `현수막 (${digitalBannerSize})`, qty: numBannerQty, unit: '부', unitPrice: bannerMakePrice, amount: bMakeAmount, editable: true });
+  }
+
+  // 명패
+  if (optDigitalNameplate) {
+    const npDesignAmount = round(1 * nameplateDesignPrice);
+    const npMakeAmount = round(numNameplateQty * nameplateMakePrice);
+    items.push({ key: 'digitalNameplateDesignPrice', name: '명패 (기본 디자인)', qty: 1, unit: '식', unitPrice: nameplateDesignPrice, amount: npDesignAmount, editable: true });
+    items.push({ key: 'digitalNameplateMakePrice', name: '종이 삼각명패 (제작)', qty: numNameplateQty, unit: '부', unitPrice: nameplateMakePrice, amount: npMakeAmount, editable: true });
+  }
+
   const supplyPrice = items.reduce((acc, cur) => acc + cur.amount, 0);
   const vat = round(supplyPrice * 0.1);
   const grandTotal = supplyPrice + vat;
@@ -296,6 +340,14 @@ export function calculateDigital(params) {
     digitalColorType,
     optDigitalCoverType,
     optDigitalInnerEdit,
+    optDigitalXBanner,
+    digitalXBannerSize,
+    digitalXBannerQty: numXBannerQty,
+    optDigitalBanner,
+    digitalBannerSize,
+    digitalBannerQty: numBannerQty,
+    optDigitalNameplate,
+    digitalNameplateQty: numNameplateQty,
     quantity: numQuantity,
     pages: numPages,
     coverPaper,
@@ -304,7 +356,13 @@ export function calculateDigital(params) {
       digitalCoverDesignPrice: coverDesignPrice,
       digitalInnerEditPrice: innerEditPrice,
       digitalInnerPrintPrice: innerPrintPrice,
-      digitalBindingPrice: bindingPrice
+      digitalBindingPrice: bindingPrice,
+      digitalXBannerDesignPrice: xbannerDesignPrice,
+      digitalXBannerMakePrice: xbannerMakePrice,
+      digitalBannerDesignPrice: bannerDesignPrice,
+      digitalBannerMakePrice: bannerMakePrice,
+      digitalNameplateDesignPrice: nameplateDesignPrice,
+      digitalNameplateMakePrice: nameplateMakePrice
     },
     items,
     subTotal: supplyPrice,

@@ -19,6 +19,20 @@ const digitalOptionsGroup = document.getElementById('group-digital-options');
 const optDigitalCoverTypeCheck = document.getElementById('opt-digital-cover-type');
 const optDigitalInnerEditCheck = document.getElementById('opt-digital-inner-edit');
 
+const optDigitalXBannerCheck = document.getElementById('opt-digital-xbanner');
+const digitalXBannerGroup = document.getElementById('group-digital-xbanner-details');
+const digitalXBannerSizeInput = document.getElementById('digitalXBannerSize');
+const digitalXBannerQtyInput = document.getElementById('digitalXBannerQty');
+
+const optDigitalBannerCheck = document.getElementById('opt-digital-banner');
+const digitalBannerGroup = document.getElementById('group-digital-banner-details');
+const digitalBannerSizeInput = document.getElementById('digitalBannerSize');
+const digitalBannerQtyInput = document.getElementById('digitalBannerQty');
+
+const optDigitalNameplateCheck = document.getElementById('opt-digital-nameplate');
+const digitalNameplateGroup = document.getElementById('group-digital-nameplate-details');
+const digitalNameplateQtyInput = document.getElementById('digitalNameplateQty');
+
 const kyungDiscountSelect = document.getElementById('kyungDiscount');
 const kyungDiscountGroup = document.getElementById('group-kyung-discount');
 const kyungCustomDiscountGroup = document.getElementById('group-kyung-custom-discount');
@@ -179,6 +193,14 @@ function updateSummaryAndBreakdownOnly() {
   const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
   const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
   const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
+  const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
+  const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
+  const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
+  const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
+  const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
+  const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
+  const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
+  const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
 
   const calc = calculateQuotation({
     type,
@@ -200,6 +222,14 @@ function updateSummaryAndBreakdownOnly() {
     digitalColorType,
     optDigitalCoverType,
     optDigitalInnerEdit,
+    optDigitalXBanner,
+    digitalXBannerSize,
+    digitalXBannerQty,
+    optDigitalBanner,
+    digitalBannerSize,
+    digitalBannerQty,
+    optDigitalNameplate,
+    digitalNameplateQty,
     customPrices: userCustomPrices
   });
 
@@ -271,6 +301,14 @@ function updateFullPreview() {
   const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
   const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
   const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
+  const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
+  const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
+  const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
+  const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
+  const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
+  const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
+  const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
+  const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
 
   previewBadge.textContent = type === '디지털' ? `${type} 인쇄 (${digitalColorType})` : `${type} ${size} (${discountRate}% 할인)`;
 
@@ -294,6 +332,14 @@ function updateFullPreview() {
     digitalColorType,
     optDigitalCoverType,
     optDigitalInnerEdit,
+    optDigitalXBanner,
+    digitalXBannerSize,
+    digitalXBannerQty,
+    optDigitalBanner,
+    digitalBannerSize,
+    digitalBannerQty,
+    optDigitalNameplate,
+    digitalNameplateQty,
     customPrices: userCustomPrices
   });
 
@@ -376,13 +422,32 @@ function updateFullPreview() {
 }
 
 // Form Event Listeners for Full Preview Update
-[customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput].forEach(el => {
-  el.addEventListener('input', updateFullPreview);
-  el.addEventListener('change', updateFullPreview);
+[customerInput, dateInput, titleInput, quantityInput, pagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, digitalXBannerSizeInput, digitalXBannerQtyInput, digitalBannerSizeInput, digitalBannerQtyInput, digitalNameplateQtyInput].forEach(el => {
+  if (el) {
+    el.addEventListener('input', updateFullPreview);
+    el.addEventListener('change', updateFullPreview);
+  }
 });
 
-[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck].forEach(el => {
-  if (el) el.addEventListener('change', updateFullPreview);
+function toggleDigitalSubOptions() {
+  if (optDigitalXBannerCheck && digitalXBannerGroup) {
+    digitalXBannerGroup.style.display = optDigitalXBannerCheck.checked ? 'flex' : 'none';
+  }
+  if (optDigitalBannerCheck && digitalBannerGroup) {
+    digitalBannerGroup.style.display = optDigitalBannerCheck.checked ? 'flex' : 'none';
+  }
+  if (optDigitalNameplateCheck && digitalNameplateGroup) {
+    digitalNameplateGroup.style.display = optDigitalNameplateCheck.checked ? 'block' : 'none';
+  }
+}
+
+[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck, optDigitalXBannerCheck, optDigitalBannerCheck, optDigitalNameplateCheck].forEach(el => {
+  if (el) {
+    el.addEventListener('change', () => {
+      toggleDigitalSubOptions();
+      updateFullPreview();
+    });
+  }
 });
 
 document.querySelectorAll('input[name="printType"]').forEach(el => {
@@ -429,6 +494,14 @@ btnDownload.addEventListener('click', async () => {
   const digitalColorType = getSelectedRadioValue('digitalColorType') || '컬러';
   const optDigitalCoverType = optDigitalCoverTypeCheck ? optDigitalCoverTypeCheck.checked : false;
   const optDigitalInnerEdit = optDigitalInnerEditCheck ? optDigitalInnerEditCheck.checked : false;
+  const optDigitalXBanner = optDigitalXBannerCheck ? optDigitalXBannerCheck.checked : false;
+  const digitalXBannerSize = digitalXBannerSizeInput ? digitalXBannerSizeInput.value : '600x1800mm';
+  const digitalXBannerQty = digitalXBannerQtyInput ? digitalXBannerQtyInput.value : 1;
+  const optDigitalBanner = optDigitalBannerCheck ? optDigitalBannerCheck.checked : false;
+  const digitalBannerSize = digitalBannerSizeInput ? digitalBannerSizeInput.value : '4000x900mm';
+  const digitalBannerQty = digitalBannerQtyInput ? digitalBannerQtyInput.value : 1;
+  const optDigitalNameplate = optDigitalNameplateCheck ? optDigitalNameplateCheck.checked : false;
+  const digitalNameplateQty = digitalNameplateQtyInput ? digitalNameplateQtyInput.value : 1;
 
   btnDownload.disabled = true;
   const originalText = btnDownload.innerHTML;
@@ -455,6 +528,14 @@ btnDownload.addEventListener('click', async () => {
       digitalColorType,
       optDigitalCoverType,
       optDigitalInnerEdit,
+      optDigitalXBanner,
+      digitalXBannerSize,
+      digitalXBannerQty,
+      optDigitalBanner,
+      digitalBannerSize,
+      digitalBannerQty,
+      optDigitalNameplate,
+      digitalNameplateQty,
       customPrices: userCustomPrices
     });
   } catch (err) {

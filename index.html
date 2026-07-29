@@ -176,6 +176,48 @@
                 <input type="checkbox" id="opt-digital-inner-edit" />
                 <span class="checkbox-text">책자-내지편집 <span class="unit">(P당 10,040원)</span></span>
               </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-digital-xbanner" />
+                <span class="checkbox-text">X배너</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-digital-banner" />
+                <span class="checkbox-text">현수막</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-digital-nameplate" />
+                <span class="checkbox-text">명패</span>
+              </label>
+            </div>
+
+            <!-- X배너 상세 입력 -->
+            <div class="form-row" id="group-digital-xbanner-details" style="display: none; margin-top: 10px;">
+              <div class="form-group">
+                <label for="digitalXBannerSize">X배너 크기 <span class="unit">(E19)</span></label>
+                <input type="text" id="digitalXBannerSize" value="600x1800mm" placeholder="예: 600x1800mm" />
+              </div>
+              <div class="form-group">
+                <label for="digitalXBannerQty">X배너 수량 <span class="unit">(G19)</span></label>
+                <input type="number" id="digitalXBannerQty" min="1" step="1" value="1" />
+              </div>
+            </div>
+
+            <!-- 현수막 상세 입력 -->
+            <div class="form-row" id="group-digital-banner-details" style="display: none; margin-top: 10px;">
+              <div class="form-group">
+                <label for="digitalBannerSize">현수막 크기 <span class="unit">(E22)</span></label>
+                <input type="text" id="digitalBannerSize" value="4000x900mm" placeholder="예: 4000x900mm" />
+              </div>
+              <div class="form-group">
+                <label for="digitalBannerQty">현수막 수량 <span class="unit">(G22)</span></label>
+                <input type="number" id="digitalBannerQty" min="1" step="1" value="1" />
+              </div>
+            </div>
+
+            <!-- 명패 상세 입력 -->
+            <div class="form-group" id="group-digital-nameplate-details" style="display: none; margin-top: 10px;">
+              <label for="digitalNameplateQty">명패 수량 <span class="unit">(G25)</span></label>
+              <input type="number" id="digitalNameplateQty" min="1" step="1" value="1" />
             </div>
           </div>
 

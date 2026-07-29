@@ -222,6 +222,14 @@ export async function downloadExcelQuotation(params) {
     const digitalColorType = params.digitalColorType || '컬러';
     const optDigitalCoverType = params.optDigitalCoverType || false;
     const optDigitalInnerEdit = params.optDigitalInnerEdit || false;
+    const optDigitalXBanner = params.optDigitalXBanner || false;
+    const digitalXBannerSize = params.digitalXBannerSize || '600x1800mm';
+    const digitalXBannerQty = Number(params.digitalXBannerQty) || 1;
+    const optDigitalBanner = params.optDigitalBanner || false;
+    const digitalBannerSize = params.digitalBannerSize || '4000x900mm';
+    const digitalBannerQty = Number(params.digitalBannerQty) || 1;
+    const optDigitalNameplate = params.optDigitalNameplate || false;
+    const digitalNameplateQty = Number(params.digitalNameplateQty) || 1;
 
     const defaultInnerPrintPrice = digitalColorType === '흑백' ? 80 : 300;
     const innerPrintPrice = customPrices.digitalInnerPrintPrice !== undefined ? Number(customPrices.digitalInnerPrintPrice) : defaultInnerPrintPrice;
@@ -252,13 +260,54 @@ export async function downloadExcelQuotation(params) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 29, false); // 29행 숨김 해제
     }
 
+    // 19~21행 (X배너) 옵션 제어
+    if (optDigitalXBanner) {
+      for (let r = 19; r <= 21; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E20', 1, false); // E20 = 1
+      sheetXml = updateCellInSheetXml(sheetXml, 'E19', digitalXBannerSize, true); // E19 = 크기
+      sheetXml = updateCellInSheetXml(sheetXml, 'G19', digitalXBannerQty, false); // G19 = 수량
+      for (let r = 30; r <= 32; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 30~32행 숨김
+    } else {
+      for (let r = 19; r <= 21; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E20', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G19', 0, false);
+      for (let r = 30; r <= 32; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+    }
+
+    // 22~24행 (현수막) 옵션 제어
+    if (optDigitalBanner) {
+      for (let r = 22; r <= 24; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E23', 1, false); // E23 = 1
+      sheetXml = updateCellInSheetXml(sheetXml, 'E22', digitalBannerSize, true); // E22 = 크기
+      sheetXml = updateCellInSheetXml(sheetXml, 'G22', digitalBannerQty, false); // G22 = 수량
+      for (let r = 33; r <= 35; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 33~35행 숨김
+    } else {
+      for (let r = 22; r <= 24; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E23', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G22', 0, false);
+      for (let r = 33; r <= 35; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+    }
+
+    // 25~27행 (명패) 옵션 제어
+    if (optDigitalNameplate) {
+      for (let r = 25; r <= 27; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E26', 1, false); // E26 = 1
+      sheetXml = updateCellInSheetXml(sheetXml, 'G25', digitalNameplateQty, false); // G25 = 수량
+      for (let r = 36; r <= 38; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true); // 36~38행 숨김
+    } else {
+      for (let r = 25; r <= 27; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, true);
+      sheetXml = updateCellInSheetXml(sheetXml, 'E26', 0, false);
+      sheetXml = updateCellInSheetXml(sheetXml, 'G25', 0, false);
+      for (let r = 36; r <= 38; r++) sheetXml = setRowHiddenInSheetXml(sheetXml, r, false);
+    }
+
     // D17: 내지 인쇄 색상 주입 ('컬러' 또는 '흑백')
     sheetXml = updateCellInSheetXml(sheetXml, 'D17', digitalColorType, true);
 
     // G17: 내지 인쇄 단가 주입 (컬러=300, 흑백=80 또는 수동 수정 단가)
     sheetXml = updateCellInSheetXml(sheetXml, 'G17', innerPrintPrice, false);
 
-    // 단가 주입 (G15: 표지 디자인, G16: 내지 편집, G18: 제본)
+    // 커스텀 단가 주입 (G15: 표지 디자인, G16: 내지 편집, G18: 제본 등)
     if (customPrices.digitalCoverDesignPrice !== undefined) {
       sheetXml = updateCellInSheetXml(sheetXml, 'G15', Number(customPrices.digitalCoverDesignPrice), false);
     }

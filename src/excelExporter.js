@@ -238,22 +238,26 @@ export async function downloadExcelQuotation(params) {
     sheetXml = updateCellInSheetXml(sheetXml, 'E14', numQuantity, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'G14', numPages, false);
 
-    // 17행: 컬러 인쇄 (컬러 면수가 0 이하이면 숨김 처리!)
+    // E17: 컬러 면수 주입 (항상 주입하여 E18 수식 G14-E17 및 금액 정상 반영)
+    sheetXml = updateCellInSheetXml(sheetXml, 'E17', numColorPages, false);
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'E14');
+
+    // E18: 흑백 면수 수식(=G14-E17) 및 부수 수식(=E14) 항상 주입
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E18', 'G14-E17');
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F18', 'E14');
+
+    // 17행: 컬러 인쇄 (컬러 면수가 0 이하이면 숨김 처리)
     if (numColorPages <= 0) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 17, true);
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 17, false);
-      sheetXml = updateCellInSheetXml(sheetXml, 'E17', numColorPages, false);
-      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F17', 'E14');
     }
 
-    // 18행: 흑백 인쇄 (총면수와 컬러면수가 동일하면 숨김 처리!)
+    // 18행: 흑백 인쇄 (컬러 면수가 총 면수 이상이면 숨김 처리)
     if (numColorPages >= numPages) {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, true);
     } else {
       sheetXml = setRowHiddenInSheetXml(sheetXml, 18, false);
-      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'E18', 'G14-E17'); // E18 = 총면수(G14) - 컬러면수(E17)
-      sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F18', 'E14'); // F18 = 부수(E14)
     }
 
     // 19행: 제본 부수 수식 (=E14) 주입

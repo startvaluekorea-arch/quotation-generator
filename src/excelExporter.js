@@ -124,52 +124,7 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
   return sheetXml;
 }
 
-/**
- * styles.xml 내의 특정 styleIndex xf 태그에 상하좌우 가운데 정렬(<alignment horizontal="center" vertical="center"/>)과 맑은고딕 폰트를 적용
- */
-function setCellCenterAlignmentInStylesXml(stylesXml, styleIndex, targetFontId = null) {
-  if (!stylesXml) return stylesXml;
-  const cellXfsMatch = stylesXml.match(/(<cellXfs[^>]*>)(.*?)(<\/cellXfs>)/s);
-  if (!cellXfsMatch) return stylesXml;
-
-  const prefix = cellXfsMatch[1];
-  const content = cellXfsMatch[2];
-  const suffix = cellXfsMatch[3];
-
-  const parts = content.split(/(?=<xf[\s>])/);
-
-  if (parts[styleIndex]) {
-    let targetXf = parts[styleIndex];
-
-    if (!targetXf.includes('applyAlignment=')) {
-      targetXf = targetXf.replace('<xf ', '<xf applyAlignment="1" ');
-    } else {
-      targetXf = targetXf.replace(/applyAlignment="[^"]*"/, 'applyAlignment="1"');
-    }
-
-    if (targetFontId !== null) {
-      if (targetXf.includes('fontId=')) {
-        targetXf = targetXf.replace(/fontId="[^"]*"/, `fontId="${targetFontId}"`);
-      }
-    }
-
-    const alignTag = '<alignment horizontal="center" vertical="center"/>';
-    if (targetXf.includes('<alignment')) {
-      targetXf = targetXf.replace(/<alignment[^>]*\/>|<alignment[^>]*>.*?<\/alignment>/s, alignTag);
-    } else if (targetXf.includes('/>')) {
-      targetXf = targetXf.replace('/>', `>${alignTag}</xf>`);
-    } else if (targetXf.includes('</xf>')) {
-      targetXf = targetXf.replace('</xf>', `${alignTag}</xf>`);
-    }
-
-    parts[styleIndex] = targetXf;
-    const newContent = parts.join('');
-    return stylesXml.replace(cellXfsMatch[0], `${prefix}${newContent}${suffix}`);
-  }
-  return stylesXml;
-}
-
-function processKyungExcel(sheetXml, params, stylesXml) {
+function processKyungExcel(sheetXml, params) {
   const {
     size,
     quantity,
@@ -213,18 +168,13 @@ function processKyungExcel(sheetXml, params, stylesXml) {
   sheetXml = updateCellInSheetXml(sheetXml, 'J10', numPages, false);
   sheetXml = updateCellInSheetXml(sheetXml, 'F12', numQuantity, false);
 
-  // B16: "표지" 텍스트 고정 주입
+  // B16: "표지" 텍스트 고정 주입 (sample 원본 서식 유지)
   sheetXml = updateCellInSheetXml(sheetXml, 'B16', '표지', true);
 
-  // C16: 표지 인쇄도수/코팅 텍스트 주입 (sample 원본 엑셀 서식 맑은고딕 10pt Rich Text 주입)
-  const c16RichXml = `<is>` +
-    `<r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>${escapeXml(colorDegreeStr)}</t></r>` +
-    `<r><rPr><sz val="10"/><rFont val="Arial"/><family val="2"/></rPr><t>, </t></r>` +
-    `<r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>${escapeXml(coatingStr)}</t></r>` +
-    `</is>`;
-  sheetXml = updateRichCellInSheetXml(sheetXml, 'C16', c16RichXml);
+  // C16: 표지 인쇄도수/코팅 텍스트 주입 (sample 원본 서식 유지)
+  sheetXml = updateCellInSheetXml(sheetXml, 'C16', c16Text, true);
 
-  // G16: 표지 수량 주입
+  // G16: 표지 수량 주입 (sample 원본 서식 유지)
   sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(coverQty).toFixed(1), false);
 
   sheetXml = updateCellInSheetXml(sheetXml, 'D17', numKyungDiscount, false);
@@ -261,13 +211,7 @@ function processKyungExcel(sheetXml, params, stylesXml) {
     sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
   }
 
-  if (stylesXml) {
-    // C16 (styleIndex: 49) 및 C17 (styleIndex: 50) 셀 스타일 상하좌우 가운데 정렬 & 맑은고딕(fontId: 11) 적용
-    stylesXml = setCellCenterAlignmentInStylesXml(stylesXml, 49, 11);
-    stylesXml = setCellCenterAlignmentInStylesXml(stylesXml, 50, 11);
-  }
-
-  return { sheetXml, stylesXml };
+  return sheetXml;
 }
 
 function processDigitalExcel(sheetXml, params) {
@@ -562,13 +506,7 @@ export async function downloadExcelQuotation(params) {
 
   // 인쇄방식별 독립 서브 헬퍼 함수로 완전 격리 처리
   if (type === '경인쇄') {
-    const res = processKyungExcel(sheetXml, params, stylesXml);
-    if (typeof res === 'object' && res.sheetXml) {
-      sheetXml = res.sheetXml;
-      if (res.stylesXml) stylesXml = res.stylesXml;
-    } else {
-      sheetXml = res;
-    }
+    sheetXml = processKyungExcel(sheetXml, params);
   } else if (type === '디지털') {
     sheetXml = processDigitalExcel(sheetXml, params);
   } else {
@@ -589,9 +527,6 @@ export async function downloadExcelQuotation(params) {
   // 수정된 xml 저장
   zip.file('xl/worksheets/sheet1.xml', sheetXml);
   zip.file('xl/workbook.xml', workbookXml);
-  if (stylesXml) {
-    zip.file('xl/styles.xml', stylesXml);
-  }
 
   // 최종 엑셀 바이너리 Blob 생성
   const zipBuffer = await zip.generateAsync({

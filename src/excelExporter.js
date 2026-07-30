@@ -100,9 +100,9 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
 }
 
 /**
- * styles.xml 내의 특정 styleIndex xf 태그에 상하좌우 가운데 정렬(<alignment horizontal="center" vertical="center"/>)을 적용
+ * styles.xml 내의 특정 styleIndex xf 태그에 상하좌우 가운데 정렬(<alignment horizontal="center" vertical="center"/>)과 맑은고딕 폰트를 적용
  */
-function setCellCenterAlignmentInStylesXml(stylesXml, styleIndex) {
+function setCellCenterAlignmentInStylesXml(stylesXml, styleIndex, targetFontId = null) {
   if (!stylesXml) return stylesXml;
   const cellXfsMatch = stylesXml.match(/(<cellXfs[^>]*>)(.*?)(<\/cellXfs>)/s);
   if (!cellXfsMatch) return stylesXml;
@@ -115,10 +115,17 @@ function setCellCenterAlignmentInStylesXml(stylesXml, styleIndex) {
 
   if (parts[styleIndex]) {
     let targetXf = parts[styleIndex];
+
     if (!targetXf.includes('applyAlignment=')) {
       targetXf = targetXf.replace('<xf ', '<xf applyAlignment="1" ');
     } else {
       targetXf = targetXf.replace(/applyAlignment="[^"]*"/, 'applyAlignment="1"');
+    }
+
+    if (targetFontId !== null) {
+      if (targetXf.includes('fontId=')) {
+        targetXf = targetXf.replace(/fontId="[^"]*"/, `fontId="${targetFontId}"`);
+      }
     }
 
     const alignTag = '<alignment horizontal="center" vertical="center"/>';
@@ -225,8 +232,9 @@ function processKyungExcel(sheetXml, params, stylesXml) {
   }
 
   if (stylesXml) {
-    // C16 셀 스타일 (styleIndex: 49) 상하좌우 가운데 정렬 적용
-    stylesXml = setCellCenterAlignmentInStylesXml(stylesXml, 49);
+    // C16 (styleIndex: 49) 및 C17 (styleIndex: 50) 셀 스타일 상하좌우 가운데 정렬 & 맑은고딕(fontId: 11) 적용
+    stylesXml = setCellCenterAlignmentInStylesXml(stylesXml, 49, 11);
+    stylesXml = setCellCenterAlignmentInStylesXml(stylesXml, 50, 11);
   }
 
   return { sheetXml, stylesXml };

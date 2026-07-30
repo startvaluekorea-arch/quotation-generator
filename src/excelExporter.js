@@ -47,6 +47,31 @@ function updateCellInSheetXml(sheetXml, cellRef, newValue, isString = false) {
 }
 
 /**
+ * sheet1.xml 내의 특정 셀Ref에 inlineRichStr XML(<is><r>...</r>...</is>) 형태의 서식 적용 텍스트 주입
+ */
+function updateRichCellInSheetXml(sheetXml, cellRef, inlineXmlContent) {
+  const selfClosingRegex = new RegExp(`(<c [^>]*r="${cellRef}"[^>]*)/>`, 's');
+  if (selfClosingRegex.test(sheetXml)) {
+    sheetXml = sheetXml.replace(selfClosingRegex, `$1></c>`);
+  }
+
+  const cellRegex = new RegExp(`(<c [^>]*r="${cellRef}"[^>]*>)(.*?)(</c>)`, 's');
+  const match = sheetXml.match(cellRegex);
+
+  if (match) {
+    let openTag = match[1];
+    let closeTag = match[3];
+
+    openTag = openTag.replace('t="s"', 't="inlineStr"');
+    if (!openTag.includes('t="inlineStr"')) {
+      openTag = openTag.replace('<c ', '<c t="inlineStr" ');
+    }
+    return sheetXml.replace(cellRegex, `${openTag}${inlineXmlContent}${closeTag}`);
+  }
+  return sheetXml;
+}
+
+/**
  * sheet1.xml 내의 특정 셀Ref의 수식(<f>...</f>)을 새 수식으로 업데이트
  */
 function updateCellFormulaInSheetXml(sheetXml, cellRef, newFormula) {
@@ -191,8 +216,13 @@ function processKyungExcel(sheetXml, params, stylesXml) {
   // B16: "표지" 텍스트 고정 주입
   sheetXml = updateCellInSheetXml(sheetXml, 'B16', '표지', true);
 
-  // C16: 표지 인쇄도수/코팅 텍스트 주입
-  sheetXml = updateCellInSheetXml(sheetXml, 'C16', c16Text, true);
+  // C16: 표지 인쇄도수/코팅 텍스트 주입 (sample 원본 엑셀 서식 맑은고딕 10pt Rich Text 주입)
+  const c16RichXml = `<is>` +
+    `<r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>${escapeXml(colorDegreeStr)}</t></r>` +
+    `<r><rPr><sz val="10"/><rFont val="Arial"/><family val="2"/></rPr><t>, </t></r>` +
+    `<r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>${escapeXml(coatingStr)}</t></r>` +
+    `</is>`;
+  sheetXml = updateRichCellInSheetXml(sheetXml, 'C16', c16RichXml);
 
   // G16: 표지 수량 주입
   sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(coverQty).toFixed(1), false);

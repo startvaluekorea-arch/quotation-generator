@@ -186,7 +186,7 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
     sheetXml = updateCellInSheetXml(sheetXml, 'K17', innerPaper, true);
   }
 
-  const discountText = ` * ${numDiscountRate} %`;
+  const discountText = ` × ${numDiscountRate} %`;
   sheetXml = updateCellInSheetXml(sheetXml, 'H16', discountText, true);
   sheetXml = updateCellInSheetXml(sheetXml, 'H17', discountText, true);
 

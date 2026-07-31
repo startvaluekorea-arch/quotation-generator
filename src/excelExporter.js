@@ -27,6 +27,9 @@ function updateCellInSheetXml(sheetXml, cellRef, newValue, isString = false) {
     let content = match[2];
     let closeTag = match[3];
 
+    // 수식 태그 <f...>...</f> 제거하여 수식 충돌 방지 및 고정값 적용
+    content = content.replace(/<f[^>]*>.*?<\/f>/gs, '');
+
     if (isString) {
       openTag = openTag.replace('t="s"', 't="inlineStr"');
       if (!openTag.includes('t="inlineStr"')) {

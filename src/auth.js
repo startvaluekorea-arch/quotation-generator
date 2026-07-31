@@ -1,13 +1,15 @@
 import { supabase } from './supabaseClient.js';
 
 /**
- * 에러 메시지 한글화 및 네트워크 가이드 헬퍼
+ * 에러 메시지 한글화 및 상세 콘솔 로깅
  */
 function handleAuthError(error, defaultMsg) {
   if (!error) return;
-  const msg = error.message || '';
-  if (msg.includes('Failed to fetch') || msg.includes('fetch failed') || msg.includes('NetworkError')) {
-    throw new Error('Supabase 서버 연결에 실패했습니다. (프로젝트 복원 중이거나 네트워크 상태를 확인해 주세요)');
+  console.error('Supabase Auth Raw Error:', error);
+  const msg = error.message || error.toString() || '';
+
+  if (msg.includes('Failed to fetch') || msg.includes('fetch failed') || msg.includes('NetworkError') || error.name === 'TypeError') {
+    throw new Error(`Supabase 서버 연결에 실패했습니다. (원인: ${msg}) 브라우저 콘솔 및 서버 주소를 확인해주세요.`);
   }
   if (msg.includes('User already registered') || msg.includes('already exists')) {
     throw new Error('이미 등록된 이메일 주소입니다. 로그인해 주세요.');
@@ -84,12 +86,17 @@ export async function signOutUser() {
  * 현재 세션 조회
  */
 export async function getSession() {
-  const { data, error } = await supabase.auth.getSession();
-  if (error) {
-    console.error('Get session error:', error.message);
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Get session error:', error.message);
+      return null;
+    }
+    return data.session;
+  } catch (e) {
+    console.error('Get session catch error:', e);
     return null;
   }
-  return data.session;
 }
 
 /**

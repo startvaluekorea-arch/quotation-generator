@@ -176,6 +176,7 @@ function toggleModeOptions() {
     if (kyungDiscountGroup) kyungDiscountGroup.style.display = 'flex';
     if (digitalOptionsGroup) digitalOptionsGroup.style.display = 'none';
     if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'none';
+    if (offsetDesignOptionsGroup) offsetDesignOptionsGroup.style.display = 'none';
     if (offsetPostprocessingGroup) offsetPostprocessingGroup.style.display = 'none';
     if (offsetRatesGroup) offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'flex';

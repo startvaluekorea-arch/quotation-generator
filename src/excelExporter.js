@@ -498,6 +498,10 @@ function processOffsetExcel(sheetXml, params) {
   sheetXml = updateCellInSheetXml(sheetXml, 'G24', '판', true);
   sheetXml = updateCellInSheetXml(sheetXml, 'G25', '판', true);
 
+  // L23 및 L25 셀 내용 삭제
+  sheetXml = updateCellInSheetXml(sheetXml, 'L23', '', true);
+  sheetXml = updateCellInSheetXml(sheetXml, 'L25', '', true);
+
   sheetXml = updateCellFormulaInSheetXml(sheetXml, 'L18', 'H12');
 
   if (customPrices.coverPaperPrice !== undefined) {

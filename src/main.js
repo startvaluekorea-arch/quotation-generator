@@ -49,6 +49,9 @@ const kyungCustomDiscountInput = document.getElementById('kyungCustomDiscount');
 
 const offsetCoverTypeGroup = document.getElementById('group-offset-cover-type');
 const offsetCoverTypeSelect = document.getElementById('offsetCoverType');
+const offsetDesignOptionsGroup = document.getElementById('group-offset-design-options');
+const optOffsetCoverDesignCheck = document.getElementById('opt-offset-cover-design');
+const optOffsetInnerEditCheck = document.getElementById('opt-offset-inner-edit');
 const offsetPostprocessingGroup = document.getElementById('group-offset-postprocessing');
 const optEpoxyCheck = document.getElementById('opt-epoxy');
 const optFoilCheck = document.getElementById('opt-foil');
@@ -178,6 +181,7 @@ function toggleModeOptions() {
     kyungCustomDiscountGroup.style.display = 'none';
     digitalOptionsGroup.style.display = 'flex';
     if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'none';
+    if (offsetDesignOptionsGroup) offsetDesignOptionsGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'none';
@@ -189,6 +193,7 @@ function toggleModeOptions() {
     kyungCustomDiscountGroup.style.display = 'none';
     digitalOptionsGroup.style.display = 'none';
     if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'flex';
+    if (offsetDesignOptionsGroup) offsetDesignOptionsGroup.style.display = 'flex';
     offsetPostprocessingGroup.style.display = 'flex';
     offsetRatesGroup.style.display = 'flex';
     if (discountRateGroup) discountRateGroup.style.display = 'flex';
@@ -290,7 +295,9 @@ function getQuotationParams() {
     const profitRate = parseInt(profitRateInput.value, 10) || 20;
     const optEpoxy = optEpoxyCheck ? optEpoxyCheck.checked : false;
     const optFoil = optFoilCheck ? optFoilCheck.checked : false;
-    const offsetCoverType = offsetCoverTypeSelect ? offsetCoverTypeSelect.value : '표지단면4도';
+    const offsetCoverType = offsetCoverTypeSelect ? offsetCoverTypeSelect.value : '표지-단면-4도';
+    const optOffsetCoverDesign = optOffsetCoverDesignCheck ? optOffsetCoverDesignCheck.checked : true;
+    const optOffsetInnerEdit = optOffsetInnerEditCheck ? optOffsetInnerEditCheck.checked : true;
 
     return {
       ...baseParams,
@@ -299,7 +306,9 @@ function getQuotationParams() {
       profitRate,
       optEpoxy,
       optFoil,
-      offsetCoverType
+      offsetCoverType,
+      optOffsetCoverDesign,
+      optOffsetInnerEdit
     };
   }
 }
@@ -509,7 +518,7 @@ function toggleSubOptions() {
   }
 }
 
-[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optKyungImageCutCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck, optDigitalXBannerCheck, optDigitalBannerCheck, optDigitalNameplateCheck].forEach(el => {
+[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optKyungImageCutCheck, optOffsetCoverDesignCheck, optOffsetInnerEditCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck, optDigitalXBannerCheck, optDigitalBannerCheck, optDigitalNameplateCheck].forEach(el => {
   if (el) {
     el.addEventListener('change', () => {
       toggleSubOptions();

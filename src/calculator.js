@@ -181,10 +181,13 @@ export function calculateOffset(params) {
   const j18 = round(f18 * h18);
   const j19 = round(f19 * h19);
 
-  const f20 = 1;
+  const optOffsetCoverDesign = params.optOffsetCoverDesign !== undefined ? params.optOffsetCoverDesign : true;
+  const optOffsetInnerEdit = params.optOffsetInnerEdit !== undefined ? params.optOffsetInnerEdit : true;
+
+  const f20 = optOffsetCoverDesign ? 1 : 0;
   const j20 = round(f20 * h20);
 
-  const f21 = pages;
+  const f21 = optOffsetInnerEdit ? pages : 0;
   const j21 = round(f21 * h21);
 
   const offsetCoverType = params.offsetCoverType || '표지-단면-4도';

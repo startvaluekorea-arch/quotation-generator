@@ -470,6 +470,26 @@ function processOffsetExcel(sheetXml, params) {
   sheetXml = updateCellInSheetXml(sheetXml, 'B20', '표지 디자인', true);
   sheetXml = updateCellInSheetXml(sheetXml, 'B21', '내지 조판비', true);
 
+  // 20행 (표지 디자인) 및 21행 (내지 편집/조판비) 옵션 처리
+  const optOffsetCoverDesign = params.optOffsetCoverDesign !== undefined ? params.optOffsetCoverDesign : true;
+  const optOffsetInnerEdit = params.optOffsetInnerEdit !== undefined ? params.optOffsetInnerEdit : true;
+
+  if (optOffsetCoverDesign) {
+    sheetXml = setRowHiddenInSheetXml(sheetXml, 20, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'F20', 1, false);
+  } else {
+    sheetXml = setRowHiddenInSheetXml(sheetXml, 20, true);
+    sheetXml = updateCellInSheetXml(sheetXml, 'F20', 0, false);
+  }
+
+  if (optOffsetInnerEdit) {
+    sheetXml = setRowHiddenInSheetXml(sheetXml, 21, false);
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F21', 'L13');
+  } else {
+    sheetXml = setRowHiddenInSheetXml(sheetXml, 21, true);
+    sheetXml = updateCellInSheetXml(sheetXml, 'F21', 0, false);
+  }
+
   // 표지 인쇄도수 (C22, C24, D22, D24, F22, F24) 설정
   const offsetCoverType = params.offsetCoverType || '표지-단면-4도';
   if (offsetCoverType === '표지-양면-4도' || offsetCoverType === '표지양면4도') {

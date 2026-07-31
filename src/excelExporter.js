@@ -211,8 +211,11 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
   // B16: "표지" 텍스트 고정 주입 (sample 원본 서식 유지)
   sheetXml = updateCellInSheetXml(sheetXml, 'B16', '표지', true);
 
-  // C16: 표지 인쇄도수/코팅 텍스트 주입 (sample 원본 서식 유지)
-  sheetXml = updateCellInSheetXml(sheetXml, 'C16', c16Text, true);
+  // C16: 표지 인쇄도수/코팅 RichText 텍스트 주입 (sample 원본 맑은 고딕 10pt 서식 유지로 수직/수평 완벽 가운데 정렬 보장)
+  const colorStr = isColor ? '4' : '1';
+  const coatingText = isMatte ? '무광코팅' : '코팅없음';
+  const c16RichXml = `<is><r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>${colorStr}</t></r><r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>도, </t></r><r><rPr><sz val="10"/><rFont val="맑은 고딕"/><family val="3"/><charset val="129"/></rPr><t>${coatingText}</t></r></is>`;
+  sheetXml = updateRichCellInSheetXml(sheetXml, 'C16', c16RichXml);
 
   // G16: 표지 수량 주입 (sample 원본 서식 유지, 소수점 첫째자리 표기 보장)
   sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(coverQty).toFixed(1), false);

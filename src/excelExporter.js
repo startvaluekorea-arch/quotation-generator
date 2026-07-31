@@ -128,7 +128,7 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
  * styles.xml 내의 특정 cellXf index(xfIndex)의 alignment 정렬 변경
  */
 function updateXfAlignment(stylesXml, xfIndex, horizontal = 'center', vertical = 'center') {
-  if (!stylesXml) return stylesXml;
+  if (!stylesXml || xfIndex === null || xfIndex === undefined) return stylesXml;
   const cellXfsMatch = stylesXml.match(/(<cellXfs[^>]*>)(.*?)(<\/cellXfs>)/s);
   if (!cellXfsMatch) return stylesXml;
 
@@ -138,8 +138,9 @@ function updateXfAlignment(stylesXml, xfIndex, horizontal = 'center', vertical =
 
   let count = 0;
   inner = inner.replace(/(<xf [^>]*\/>|<xf [^>]*>.*?<\/xf>)/gs, (match) => {
-    if (count === xfIndex) {
-      count++;
+    const currentIdx = count;
+    count++;
+    if (currentIdx === xfIndex) {
       let updated = match;
       if (updated.includes('<alignment')) {
         updated = updated.replace(/<alignment[^>]*\/>/, `<alignment horizontal="${horizontal}" vertical="${vertical}"/>`);
@@ -157,7 +158,6 @@ function updateXfAlignment(stylesXml, xfIndex, horizontal = 'center', vertical =
       }
       return updated;
     }
-    count++;
     return match;
   });
 
@@ -259,8 +259,15 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
     stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;[\s\\]*#,##0(?:\.0)?"/g, 'formatCode="&quot; × &quot; 0.0"');
     stylesXml = stylesXml.replace(/formatCode="0\.0"/g, 'formatCode="&quot; × &quot; 0.0"');
 
-    // C16 셀(xfIndex: 49)을 상하좌우 완벽 가운데 정렬(horizontal="center", vertical="center")로 설정
-    stylesXml = updateXfAlignment(stylesXml, 49, 'center', 'center');
+    // C16 셀의 스타일 index s="숫자" 동적 추출 후 상하좌우 완벽 가운데 정렬(horizontal="center", vertical="center") 적용
+    const c16Match = sheetXml.match(/<c [^>]*r="C16"[^>]*>/);
+    if (c16Match) {
+      const sMatch = c16Match[0].match(/s="(\d+)"/);
+      if (sMatch) {
+        const c16StyleIdx = parseInt(sMatch[1], 10);
+        stylesXml = updateXfAlignment(stylesXml, c16StyleIdx, 'center', 'center');
+      }
+    }
   }
 
   return { sheetXml, stylesXml };

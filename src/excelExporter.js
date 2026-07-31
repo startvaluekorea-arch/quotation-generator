@@ -471,15 +471,15 @@ function processOffsetExcel(sheetXml, params) {
   sheetXml = updateCellInSheetXml(sheetXml, 'B21', '내지 조판비', true);
 
   // 표지 인쇄도수 (C22, C24, D22, D24, F22, F24) 설정
-  const offsetCoverType = params.offsetCoverType || '표지단면4도';
-  if (offsetCoverType === '표지양면4도') {
+  const offsetCoverType = params.offsetCoverType || '표지-단면-4도';
+  if (offsetCoverType === '표지-양면-4도' || offsetCoverType === '표지양면4도') {
     sheetXml = updateCellInSheetXml(sheetXml, 'C22', 8, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'C24', 8, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'D22', '양면', true);
     sheetXml = updateCellInSheetXml(sheetXml, 'D24', '양면', true);
     sheetXml = updateCellInSheetXml(sheetXml, 'F22', 8, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'F24', 8, false);
-  } else if (offsetCoverType === '표지양면4/1도') {
+  } else if (offsetCoverType === '표지-양면4/1도' || offsetCoverType === '표지양면4/1도') {
     sheetXml = updateCellInSheetXml(sheetXml, 'C22', 5, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'C24', 5, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'D22', '양면', true);

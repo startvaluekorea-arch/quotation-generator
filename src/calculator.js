@@ -188,12 +188,15 @@ export function calculateOffset(params) {
   const f21 = pages;
   const j21 = round(f21 * h21);
 
-  const offsetCoverType = params.offsetCoverType || '표지단면4도';
+  const offsetCoverType = params.offsetCoverType || '표지-단면-4도';
   let f22 = 4;
-  if (offsetCoverType === '표지양면4도') {
+  let coverTypeLabel = '표지-단면-4도';
+  if (offsetCoverType === '표지-양면-4도' || offsetCoverType === '표지양면4도') {
     f22 = 8;
-  } else if (offsetCoverType === '표지양면4/1도') {
+    coverTypeLabel = '표지-양면-4도';
+  } else if (offsetCoverType === '표지-양면4/1도' || offsetCoverType === '표지양면4/1도') {
     f22 = 5;
+    coverTypeLabel = '표지-양면4/1도';
   }
   const j22 = round(f22 * h22);
 
@@ -223,9 +226,9 @@ export function calculateOffset(params) {
     { key: 'innerPaperPrice', name: `용지대 (내지 ${innerPaper})`, qty: round(f19, 2), unit: 'R', unitPrice: h19, amount: j19, editable: true },
     { key: 'coverDesignPrice', name: '표지 디자인', qty: f20, unit: '식', unitPrice: h20, amount: j20, editable: true },
     { key: 'innerTypePrice', name: '내지 조판비', qty: f21, unit: 'P', unitPrice: h21, amount: j21, editable: true },
-    { key: 'coverPlatePrice', name: '인쇄판비 (표지 4도)', qty: f22, unit: '판', unitPrice: h22, amount: j22, editable: true },
+    { key: 'coverPlatePrice', name: `인쇄판비 (${coverTypeLabel})`, qty: f22, unit: '판', unitPrice: h22, amount: j22, editable: true },
     { key: 'innerPlatePrice', name: '인쇄판비 (내지)', qty: f23, unit: '판', unitPrice: h23, amount: j23, editable: true },
-    { key: 'coverPrintPrice', name: '인쇄 (표지)', qty: f24, unit: '판', unitPrice: h24, amount: j24, editable: true },
+    { key: 'coverPrintPrice', name: `인쇄 (${coverTypeLabel})`, qty: f24, unit: '판', unitPrice: h24, amount: j24, editable: true },
     { key: 'innerPrintPrice', name: '인쇄 (내지)', qty: f25, unit: '판', unitPrice: h25, amount: j25, editable: true },
     { key: 'bindingPrice', name: '무선제본', qty: f26, unit: '식', unitPrice: h26, amount: j26, editable: true }
   ];

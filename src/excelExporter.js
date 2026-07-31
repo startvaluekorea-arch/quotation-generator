@@ -470,6 +470,7 @@ function processOffsetExcel(sheetXml, params) {
     sheetXml = updateCellInSheetXml(sheetXml, 'H13', innerPaper, true);
   }
 
+  sheetXml = updateCellInSheetXml(sheetXml, 'A20', '조판', true);
   sheetXml = updateCellInSheetXml(sheetXml, 'B20', '표지 디자인', true);
   sheetXml = updateCellInSheetXml(sheetXml, 'B21', '내지 조판비', true);
 

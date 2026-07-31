@@ -440,7 +440,7 @@ function processDigitalExcel(sheetXml, params) {
   return sheetXml;
 }
 
-function processOffsetExcel(sheetXml, params) {
+function processOffsetExcel(sheetXml, params, stylesXml = null) {
   const {
     quantity,
     pages,
@@ -607,7 +607,12 @@ function processOffsetExcel(sheetXml, params) {
   const ratio = numDiscountRate / 100;
   sheetXml = updateCellInSheetXml(sheetXml, 'G35', ratio, false);
 
-  return sheetXml;
+  // F30 셀 서식 (formatCode="0.0")을 정수 서식 (formatCode="0")으로 변경하여 소수점 제거
+  if (stylesXml) {
+    stylesXml = stylesXml.replace(/formatCode="0\.0"/g, 'formatCode="0"');
+  }
+
+  return { sheetXml, stylesXml };
 }
 
 /**
@@ -670,7 +675,11 @@ export async function downloadExcelQuotation(params) {
   } else if (type === '디지털') {
     sheetXml = processDigitalExcel(sheetXml, params);
   } else {
-    sheetXml = processOffsetExcel(sheetXml, params);
+    const offsetResult = processOffsetExcel(sheetXml, params, stylesXml);
+    sheetXml = offsetResult.sheetXml;
+    if (offsetResult.stylesXml) {
+      stylesXml = offsetResult.stylesXml;
+    }
   }
 
   // 수식 셀(<f>...</f>)에 남아있는 이전 캐시값(<v>옛날값</v>) 제거하여 엑셀 오픈 시 재계산 강제

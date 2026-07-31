@@ -261,7 +261,7 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
   if (numImageCutQty >= 1) {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 19, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'A19', '컷작업', true);
-    sheetXml = updateCellInSheetXml(sheetXml, 'D19', `${numImageCutQty}x ${imageCutPrice.toLocaleString()}`, true);
+    sheetXml = updateCellInSheetXml(sheetXml, 'D19', `${numImageCutQty} × ${imageCutPrice.toLocaleString()}`, true);
     sheetXml = updateCellInSheetXml(sheetXml, 'I19', numImageCutQty * imageCutPrice, false);
   } else {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 19, true);

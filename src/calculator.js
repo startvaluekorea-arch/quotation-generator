@@ -101,7 +101,7 @@ export function calculateKyung(params) {
       unit: '컷',
       unitPrice: imageCutPrice,
       amount: round(i19),
-      note: `${numImageCutQty}컷 x ${imageCutPrice.toLocaleString()}원`,
+      note: `${numImageCutQty}컷 × ${imageCutPrice.toLocaleString()}원`,
       editable: true
     });
   }

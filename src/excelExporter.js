@@ -684,6 +684,9 @@ export async function downloadExcelQuotation(params) {
     workbookXml = workbookXml.replace('</workbook>', '<calcPr fullCalcOnLoad="1" forceFullCalc="1"/></workbook>');
   }
 
+  // calcChain.xml 이전 캐시 파일 제거 (수식 수정 시 발생할 수 있는 '/xl/calcChain.xml 복구 경고창' 완벽 방지)
+  zip.remove('xl/calcChain.xml');
+
   // 수정된 xml 저장
   zip.file('xl/worksheets/sheet1.xml', sheetXml);
   zip.file('xl/workbook.xml', workbookXml);

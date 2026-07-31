@@ -81,7 +81,7 @@ export function calculateKyung(params) {
   const discountNote = d17 > 0 ? ` (조판생략감액: ${d17.toLocaleString()}원 차감)` : '';
 
   const items = [
-    { key: 'kyungCover', name: `표지 (${c16Text})`, qty: g16, unitPrice: d16, amount: round(i16), note: `${coverPaper}, ${discountRate}% 할인적용` },
+    { key: 'kyungCover', name: `표지 (${c16Text})`, qty: Number(g16).toFixed(1), unitPrice: d16, amount: round(i16), note: `${coverPaper}, ${discountRate}% 할인적용` },
     { key: 'kyungInner', name: `내지 (1색, 양면)${discountNote}`, qty: g17, unitPrice: d17, amount: round(i17), note: `${innerPaper}, ${discountRate}% 할인적용` }
   ];
 

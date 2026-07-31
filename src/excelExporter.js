@@ -174,7 +174,7 @@ function processKyungExcel(sheetXml, params) {
   // C16: 표지 인쇄도수/코팅 텍스트 주입 (sample 원본 서식 유지)
   sheetXml = updateCellInSheetXml(sheetXml, 'C16', c16Text, true);
 
-  // G16: 표지 수량 주입 (sample 원본 서식 유지)
+  // G16: 표지 수량 주입 (sample 원본 서식 유지, 소수점 첫째자리 소수점 표기 보장)
   sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(coverQty).toFixed(1), false);
 
   sheetXml = updateCellInSheetXml(sheetXml, 'D17', numKyungDiscount, false);

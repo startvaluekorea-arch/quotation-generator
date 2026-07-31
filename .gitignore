@@ -6,3 +6,5 @@ dist
 test_*.mjs
 test_*.js
 test_*.xlsx
+.env
+.env.local

@@ -1,7 +1,15 @@
 import { calculateQuotation } from './calculator.js';
 import { downloadExcelQuotation } from './excelExporter.js';
+import { initLandingPage } from './landing.js';
+import { getCurrentUser, signOutUser, onAuthStateChange } from './auth.js';
 
-// DOM Elements
+// DOM Containers
+const landingApp = document.getElementById('landing-app');
+const quotationApp = document.getElementById('quotation-app');
+const userDisplayName = document.getElementById('user-display-name');
+const btnLogout = document.getElementById('btn-logout');
+
+// DOM Form Elements
 const form = document.getElementById('quotation-form');
 const customerInput = document.getElementById('customerName');
 const dateInput = document.getElementById('dateStr');
@@ -71,8 +79,10 @@ const tableBody = document.getElementById('preview-table-body');
 const breakdownContainer = document.getElementById('breakdown-container');
 
 // Set default date to today (YYYY-MM-DD)
-const today = new Date().toISOString().split('T')[0];
-dateInput.value = today;
+if (dateInput) {
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.value = today;
+}
 
 function formatCurrency(amount) {
   return new Intl.NumberFormat('ko-KR').format(amount) + ' 원';
@@ -119,6 +129,7 @@ const kyungOptionsMap = {
 };
 
 function populateKyungDiscountOptions(size) {
+  if (!kyungDiscountSelect) return;
   const options = kyungOptionsMap[size] || kyungOptionsMap['10절'];
   const currentValue = kyungDiscountSelect.value;
   
@@ -144,12 +155,12 @@ function updateDefaultDiscountRate() {
 
   if (type !== lastType || size !== lastSize) {
     if (type === '경인쇄') {
-      discountRateInput.value = 80;
+      if (discountRateInput) discountRateInput.value = 80;
       populateKyungDiscountOptions(size);
     } else if (type === '디지털') {
-      discountRateInput.value = 100;
+      if (discountRateInput) discountRateInput.value = 100;
     } else {
-      discountRateInput.value = 85;
+      if (discountRateInput) discountRateInput.value = 85;
     }
     lastType = type;
     lastSize = size;
@@ -160,66 +171,64 @@ function toggleModeOptions() {
   const type = getSelectedRadioValue('printType');
   if (type === '경인쇄') {
     if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'flex';
-    kyungCoverDesignGroup.style.display = 'flex';
+    if (kyungCoverDesignGroup) kyungCoverDesignGroup.style.display = 'flex';
     if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'flex';
-    kyungDiscountGroup.style.display = 'flex';
-    digitalOptionsGroup.style.display = 'none';
+    if (kyungDiscountGroup) kyungDiscountGroup.style.display = 'flex';
+    if (digitalOptionsGroup) digitalOptionsGroup.style.display = 'none';
     if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'none';
-    offsetPostprocessingGroup.style.display = 'none';
-    offsetRatesGroup.style.display = 'none';
+    if (offsetPostprocessingGroup) offsetPostprocessingGroup.style.display = 'none';
+    if (offsetRatesGroup) offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'flex';
-    if (kyungDiscountSelect.value === 'custom') {
-      kyungCustomDiscountGroup.style.display = 'flex';
+    if (kyungDiscountSelect && kyungDiscountSelect.value === 'custom') {
+      if (kyungCustomDiscountGroup) kyungCustomDiscountGroup.style.display = 'flex';
     } else {
-      kyungCustomDiscountGroup.style.display = 'none';
+      if (kyungCustomDiscountGroup) kyungCustomDiscountGroup.style.display = 'none';
     }
   } else if (type === '디지털') {
     if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'none';
-    kyungCoverDesignGroup.style.display = 'none';
+    if (kyungCoverDesignGroup) kyungCoverDesignGroup.style.display = 'none';
     if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'none';
-    kyungDiscountGroup.style.display = 'none';
-    kyungCustomDiscountGroup.style.display = 'none';
-    digitalOptionsGroup.style.display = 'flex';
+    if (kyungDiscountGroup) kyungDiscountGroup.style.display = 'none';
+    if (kyungCustomDiscountGroup) kyungCustomDiscountGroup.style.display = 'none';
+    if (digitalOptionsGroup) digitalOptionsGroup.style.display = 'flex';
     if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'none';
     if (offsetDesignOptionsGroup) offsetDesignOptionsGroup.style.display = 'none';
-    offsetPostprocessingGroup.style.display = 'none';
-    offsetRatesGroup.style.display = 'none';
+    if (offsetPostprocessingGroup) offsetPostprocessingGroup.style.display = 'none';
+    if (offsetRatesGroup) offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'none';
   } else {
     if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'none';
-    kyungCoverDesignGroup.style.display = 'none';
+    if (kyungCoverDesignGroup) kyungCoverDesignGroup.style.display = 'none';
     if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'none';
-    kyungDiscountGroup.style.display = 'none';
-    kyungCustomDiscountGroup.style.display = 'none';
-    digitalOptionsGroup.style.display = 'none';
+    if (kyungDiscountGroup) kyungDiscountGroup.style.display = 'none';
+    if (kyungCustomDiscountGroup) kyungCustomDiscountGroup.style.display = 'none';
+    if (digitalOptionsGroup) digitalOptionsGroup.style.display = 'none';
     if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'flex';
     if (offsetDesignOptionsGroup) offsetDesignOptionsGroup.style.display = 'flex';
-    offsetPostprocessingGroup.style.display = 'flex';
-    offsetRatesGroup.style.display = 'flex';
+    if (offsetPostprocessingGroup) offsetPostprocessingGroup.style.display = 'flex';
+    if (offsetRatesGroup) offsetRatesGroup.style.display = 'flex';
     if (discountRateGroup) discountRateGroup.style.display = 'flex';
   }
 }
 
 function getActiveKyungDiscount() {
+  if (!kyungDiscountSelect) return 0;
   if (kyungDiscountSelect.value === 'custom') {
     return parseInt(kyungCustomDiscountInput.value, 10) || 0;
   }
   return parseInt(kyungDiscountSelect.value, 10) || 0;
 }
 
-/**
- * 현재 선택된 인쇄 방식에만 해당하는 샌드박스 파라미터 생성
- */
 function getQuotationParams() {
   const type = getSelectedRadioValue('printType') || '옵셋';
   const size = getSelectedRadioValue('printSize') || '10절';
-  const customerName = customerInput.value.trim();
-  const dateStr = dateInput.value;
-  const title = titleInput.value.trim();
-  const quantity = parseInt(quantityInput.value, 10) || 1;
-  const pages = parseInt(pagesInput.value, 10) || 1;
-  const coverPaper = coverPaperInput.value.trim() || '아트250';
-  const innerPaper = innerPaperInput.value.trim() || '미색80';
+  const customerName = customerInput ? customerInput.value.trim() : '';
+  const dateStr = dateInput ? dateInput.value : '';
+  const title = titleInput ? titleInput.value.trim() : '';
+  const quantity = quantityInput ? parseInt(quantityInput.value, 10) || 1 : 1;
+  const pages = pagesInput ? parseInt(pagesInput.value, 10) || 1 : 1;
+  const coverPaper = coverPaperInput ? coverPaperInput.value.trim() || '아트250' : '아트250';
+  const innerPaper = innerPaperInput ? innerPaperInput.value.trim() || '미색80' : '미색80';
 
   const customPrices = getCurrentCustomPrices();
 
@@ -237,7 +246,7 @@ function getQuotationParams() {
   };
 
   if (type === '경인쇄') {
-    const discountRate = parseInt(discountRateInput.value, 10) || 80;
+    const discountRate = discountRateInput ? parseInt(discountRateInput.value, 10) || 80 : 80;
     const kyungDiscount = getActiveKyungDiscount();
     const optKyungCoverDesign = optKyungCoverDesignCheck ? optKyungCoverDesignCheck.checked : false;
     const optKyungImageCut = optKyungImageCutCheck ? optKyungImageCutCheck.checked : false;
@@ -290,9 +299,9 @@ function getQuotationParams() {
     };
   } else {
     // 옵셋 인쇄
-    const discountRate = parseInt(discountRateInput.value, 10) || 85;
-    const overheadRate = parseInt(overheadRateInput.value, 10) || 10;
-    const profitRate = parseInt(profitRateInput.value, 10) || 20;
+    const discountRate = discountRateInput ? parseInt(discountRateInput.value, 10) || 85 : 85;
+    const overheadRate = overheadRateInput ? parseInt(overheadRateInput.value, 10) || 10 : 10;
+    const profitRate = profitRateInput ? parseInt(profitRateInput.value, 10) || 20 : 20;
     const optEpoxy = optEpoxyCheck ? optEpoxyCheck.checked : false;
     const optFoil = optFoilCheck ? optFoilCheck.checked : false;
     const offsetCoverType = offsetCoverTypeSelect ? offsetCoverTypeSelect.value : '표지-단면-4도';
@@ -313,154 +322,146 @@ function getQuotationParams() {
   }
 }
 
-/**
- * 계산 결과를 기반으로 요약 카드 및 세부 Breakdown만 빠르게 갱신 (테이블 DOM 유지)
- */
 function updateSummaryAndBreakdownOnly() {
   const params = getQuotationParams();
   const calc = calculateQuotation(params);
 
-  // Update Summary Cards
-  grandTotalEl.textContent = formatCurrency(calc.grandTotal);
-  supplyPriceEl.textContent = formatCurrency(calc.supplyPrice);
-  vatEl.textContent = formatCurrency(calc.vat);
+  if (grandTotalEl) grandTotalEl.textContent = formatCurrency(calc.grandTotal);
+  if (supplyPriceEl) supplyPriceEl.textContent = formatCurrency(calc.supplyPrice);
+  if (vatEl) vatEl.textContent = formatCurrency(calc.vat);
 
-  // Update Item Amount Texts in Table without destroying Inputs
-  calc.items.forEach(item => {
-    const amountTd = tableBody.querySelector(`td[data-amount-key="${item.key}"]`);
-    if (amountTd) {
-      amountTd.textContent = formatCurrency(item.amount);
+  if (tableBody) {
+    calc.items.forEach(item => {
+      const amountTd = tableBody.querySelector(`td[data-amount-key="${item.key}"]`);
+      if (amountTd) {
+        amountTd.textContent = formatCurrency(item.amount);
+      }
+    });
+  }
+
+  if (breakdownContainer) {
+    if (calc.type === '경인쇄') {
+      breakdownContainer.innerHTML = `
+        <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+        <div class="breakdown-row"><span>이윤 (적용):</span><span>${formatCurrency(calc.totalMargin)}</span></div>
+        <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+        <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+        <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+      `;
+    } else if (calc.type === '디지털') {
+      breakdownContainer.innerHTML = `
+        <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+        <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+        <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+      `;
+    } else {
+      breakdownContainer.innerHTML = `
+        <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+        <div class="breakdown-row"><span>일반관리비 (${params.overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
+        <div class="breakdown-row"><span>이윤 (${params.profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
+        <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
+        <div class="breakdown-row"><span>할인/네고 적용금액 (${params.discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
+        <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+        <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+        <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+      `;
     }
-  });
-
-  // Update Detailed Breakdown
-  if (calc.type === '경인쇄') {
-    breakdownContainer.innerHTML = `
-      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row"><span>이윤 (적용):</span><span>${formatCurrency(calc.totalMargin)}</span></div>
-      <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
-      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
-      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
-    `;
-  } else if (calc.type === '디지털') {
-    breakdownContainer.innerHTML = `
-      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
-      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
-    `;
-  } else {
-    breakdownContainer.innerHTML = `
-      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row"><span>일반관리비 (${params.overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
-      <div class="breakdown-row"><span>이윤 (${params.profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
-      <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
-      <div class="breakdown-row"><span>할인/네고 적용금액 (${params.discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
-      <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
-      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
-      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
-    `;
   }
 }
 
-/**
- * 전체 프리뷰 표 및 컨트롤 업데이트 (항목 구성이나 인쇄방식 변경 시 호출)
- */
 function updateFullPreview() {
   updateDefaultDiscountRate();
   toggleModeOptions();
 
   const params = getQuotationParams();
-  previewBadge.textContent = params.type === '디지털' ? `${params.type} 인쇄` : `${params.type} ${params.size} (${params.discountRate}% 할인)`;
+  if (previewBadge) {
+    previewBadge.textContent = params.type === '디지털' ? `${params.type} 인쇄` : `${params.type} ${params.size} (${params.discountRate}% 할인)`;
+  }
 
   const calc = calculateQuotation(params);
 
-  // Update Summary Cards
-  grandTotalEl.textContent = formatCurrency(calc.grandTotal);
-  supplyPriceEl.textContent = formatCurrency(calc.supplyPrice);
-  vatEl.textContent = formatCurrency(calc.vat);
+  if (grandTotalEl) grandTotalEl.textContent = formatCurrency(calc.grandTotal);
+  if (supplyPriceEl) supplyPriceEl.textContent = formatCurrency(calc.supplyPrice);
+  if (vatEl) vatEl.textContent = formatCurrency(calc.vat);
 
-  // Re-render Table Body
-  tableBody.innerHTML = '';
-  calc.items.forEach(item => {
-    const tr = document.createElement('tr');
-    
-    const qtyText = item.unit ? `${item.qty} ${item.unit}` : `${item.qty}`;
-    const noteHtml = item.note ? `<span class="item-note">(${item.note})</span>` : '';
-
-    let priceCellHtml = '';
-    if (item.editable) {
-      priceCellHtml = `<input type="text" inputmode="numeric" class="price-input" data-key="${item.key}" value="${item.unitPrice}" />`;
-    } else {
-      priceCellHtml = item.unitPrice ? formatCurrency(item.unitPrice) : '-';
-    }
-
-    tr.innerHTML = `
-      <td>${item.name} ${noteHtml}</td>
-      <td class="text-right">${qtyText}</td>
-      <td class="text-right">${priceCellHtml}</td>
-      <td class="text-right" data-amount-key="${item.key}">${formatCurrency(item.amount)}</td>
-    `;
-    tableBody.appendChild(tr);
-  });
-
-  // Bind Event Listeners on price inputs ONCE during table creation
-  tableBody.querySelectorAll('input.price-input').forEach(inputEl => {
-    const key = inputEl.getAttribute('data-key');
-
-    inputEl.addEventListener('input', (e) => {
-      // 숫자만 추출
-      const rawVal = e.target.value.replace(/[^0-9]/g, '');
-      const numVal = parseInt(rawVal, 10);
-      const currentPrices = getCurrentCustomPrices();
+  if (tableBody) {
+    tableBody.innerHTML = '';
+    calc.items.forEach(item => {
+      const tr = document.createElement('tr');
       
-      if (!isNaN(numVal)) {
-        currentPrices[key] = numVal;
+      const qtyText = item.unit ? `${item.qty} ${item.unit}` : `${item.qty}`;
+      const noteHtml = item.note ? `<span class="item-note">(${item.note})</span>` : '';
+
+      let priceCellHtml = '';
+      if (item.editable) {
+        priceCellHtml = `<input type="text" inputmode="numeric" class="price-input" data-key="${item.key}" value="${item.unitPrice}" />`;
       } else {
-        currentPrices[key] = 0;
+        priceCellHtml = item.unitPrice ? formatCurrency(item.unitPrice) : '-';
       }
-      
-      // 입력 중에도 요약 카드 및 해당 행 금액 인라인 갱신 (입력창 DOM은 절대 건드리지 않음!)
-      updateSummaryAndBreakdownOnly();
-    });
-  });
 
-  // Update Detailed Breakdown
-  if (calc.type === '경인쇄') {
-    breakdownContainer.innerHTML = `
-      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row"><span>이윤 (적용):</span><span>${formatCurrency(calc.totalMargin)}</span></div>
-      <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
-      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
-      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
-    `;
-  } else if (calc.type === '디지털') {
-    breakdownContainer.innerHTML = `
-      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
-      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
-    `;
-  } else {
-    breakdownContainer.innerHTML = `
-      <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
-      <div class="breakdown-row"><span>일반관리비 (${params.overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
-      <div class="breakdown-row"><span>이윤 (${params.profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
-      <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
-      <div class="breakdown-row"><span>할인/네고 적용금액 (${params.discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
-      <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
-      <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
-      <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
-    `;
+      tr.innerHTML = `
+        <td>${item.name} ${noteHtml}</td>
+        <td class="text-right">${qtyText}</td>
+        <td class="text-right">${priceCellHtml}</td>
+        <td class="text-right" data-amount-key="${item.key}">${formatCurrency(item.amount)}</td>
+      `;
+      tableBody.appendChild(tr);
+    });
+
+    tableBody.querySelectorAll('input.price-input').forEach(inputEl => {
+      const key = inputEl.getAttribute('data-key');
+      inputEl.addEventListener('input', (e) => {
+        const rawVal = e.target.value.replace(/[^0-9]/g, '');
+        const numVal = parseInt(rawVal, 10);
+        const currentPrices = getCurrentCustomPrices();
+        
+        if (!isNaN(numVal)) {
+          currentPrices[key] = numVal;
+        } else {
+          currentPrices[key] = 0;
+        }
+        updateSummaryAndBreakdownOnly();
+      });
+    });
+  }
+
+  if (breakdownContainer) {
+    if (calc.type === '경인쇄') {
+      breakdownContainer.innerHTML = `
+        <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+        <div class="breakdown-row"><span>이윤 (적용):</span><span>${formatCurrency(calc.totalMargin)}</span></div>
+        <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+        <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+        <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+      `;
+    } else if (calc.type === '디지털') {
+      breakdownContainer.innerHTML = `
+        <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+        <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+        <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+      `;
+    } else {
+      breakdownContainer.innerHTML = `
+        <div class="breakdown-row"><span>항목 계 (합계):</span><span>${formatCurrency(calc.subTotal)}</span></div>
+        <div class="breakdown-row"><span>일반관리비 (${params.overheadRate}%):</span><span>${formatCurrency(calc.overhead)}</span></div>
+        <div class="breakdown-row"><span>이윤 (${params.profitRate}%):</span><span>${formatCurrency(calc.profit)}</span></div>
+        <div class="breakdown-row"><span>소계:</span><span>${formatCurrency(calc.rawSubTotal)}</span></div>
+        <div class="breakdown-row"><span>할인/네고 적용금액 (${params.discountRate}%):</span><span>${formatCurrency(calc.discountedTotal)}</span></div>
+        <div class="breakdown-row"><span>절사액 (백원 이하):</span><span>-${formatCurrency(calc.truncation)}</span></div>
+        <div class="breakdown-row highlight"><span>공급가액:</span><span>${formatCurrency(calc.supplyPrice)}</span></div>
+        <div class="breakdown-row"><span>부가가치세 (10%):</span><span>${formatCurrency(calc.vat)}</span></div>
+      `;
+    }
   }
 }
 
-// Form Event Listeners for Full Preview Update
+// Form Event Listeners
 [customerInput, dateInput, titleInput, quantityInput, pagesInput, digitalColorPagesInput, digitalBWPagesInput, coverPaperInput, innerPaperInput, discountRateInput, kyungDiscountSelect, kyungCustomDiscountInput, overheadRateInput, profitRateInput, digitalXBannerSizeInput, digitalXBannerQtyInput, digitalBannerSizeInput, digitalBannerQtyInput, digitalNameplateQtyInput].forEach(el => {
   if (el) {
     el.addEventListener('change', updateFullPreview);
   }
 });
 
-// Bi-directional Auto Calculation between Total Pages, Color Pages, and BW Pages
 if (pagesInput) {
   pagesInput.addEventListener('input', () => {
     const totalPages = parseInt(pagesInput.value, 10) || 1;
@@ -497,7 +498,7 @@ if (digitalBWPagesInput) {
     bwPages = Math.max(0, Math.min(totalPages, bwPages));
     digitalBWPagesInput.value = bwPages;
     if (digitalColorPagesInput) {
-      digitalColorPagesInput.value = totalPages - bwPages;
+      digitalColorPagesInput.value = totalPages - colorPages;
     }
     updateFullPreview();
   });
@@ -528,21 +529,15 @@ function toggleSubOptions() {
 });
 
 if (kyungImageCutQtyInput) {
-  kyungImageCutQtyInput.addEventListener('input', () => {
-    updateFullPreview();
-  });
+  kyungImageCutQtyInput.addEventListener('input', updateFullPreview);
 }
 
 if (offsetCoverTypeSelect) {
-  offsetCoverTypeSelect.addEventListener('change', () => {
-    updateFullPreview();
-  });
+  offsetCoverTypeSelect.addEventListener('change', updateFullPreview);
 }
 
 document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"]').forEach(el => {
-  el.addEventListener('change', () => {
-    updateFullPreview();
-  });
+  el.addEventListener('change', updateFullPreview);
 });
 
 document.querySelectorAll('input[name="printType"]').forEach(el => {
@@ -575,30 +570,78 @@ document.querySelectorAll('input[name="printSize"]').forEach(el => {
   });
 });
 
-// Download Button Click
-btnDownload.addEventListener('click', async () => {
-  const params = getQuotationParams();
+if (btnDownload) {
+  btnDownload.addEventListener('click', async () => {
+    const params = getQuotationParams();
 
-  btnDownload.disabled = true;
-  const originalText = btnDownload.innerHTML;
-  btnDownload.innerHTML = '⏳ 엑셀 파일 생성 중...';
+    btnDownload.disabled = true;
+    const originalText = btnDownload.innerHTML;
+    btnDownload.innerHTML = '⏳ 엑셀 파일 생성 중...';
 
-  try {
-    await downloadExcelQuotation(params);
-  } catch (err) {
-    alert('엑셀 다운로드 중 오류가 발생했습니다: ' + err.message);
-    console.error(err);
-  } finally {
-    btnDownload.disabled = false;
-    btnDownload.innerHTML = originalText;
-  }
-});
-
-// Initial Setup
-populateKyungDiscountOptions(getSelectedRadioValue('printSize'));
-if (pagesInput && digitalColorPagesInput && digitalBWPagesInput) {
-  const initPages = parseInt(pagesInput.value, 10) || 62;
-  digitalColorPagesInput.value = initPages;
-  digitalBWPagesInput.value = 0;
+    try {
+      await downloadExcelQuotation(params);
+    } catch (err) {
+      alert('엑셀 다운로드 중 오류가 발생했습니다: ' + err.message);
+      console.error(err);
+    } finally {
+      btnDownload.disabled = false;
+      btnDownload.innerHTML = originalText;
+    }
+  });
 }
-updateFullPreview();
+
+
+// ==================== AUTH GUARD & NAVIGATION LOGIC ==================== //
+
+async function renderAppForSession(session) {
+  if (session && session.user) {
+    // 로그인 완료 -> 견적서 앱 표시
+    landingApp.style.display = 'none';
+    quotationApp.style.display = 'flex';
+
+    const displayName = session.user.user_metadata?.display_name || session.user.email.split('@')[0];
+    if (userDisplayName) {
+      userDisplayName.textContent = displayName;
+    }
+
+    // 견적서 초기 렌더링
+    populateKyungDiscountOptions(getSelectedRadioValue('printSize'));
+    if (pagesInput && digitalColorPagesInput && digitalBWPagesInput) {
+      const initPages = parseInt(pagesInput.value, 10) || 62;
+      digitalColorPagesInput.value = initPages;
+      digitalBWPagesInput.value = 0;
+    }
+    updateFullPreview();
+  } else {
+    // 미인증 상태 -> 랜딩 페이지 표시
+    quotationApp.style.display = 'none';
+    landingApp.style.display = 'flex';
+  }
+}
+
+// 로그아웃 버튼
+if (btnLogout) {
+  btnLogout.addEventListener('click', async () => {
+    if (confirm('로그아웃 하시겠습니까?')) {
+      await signOutUser();
+    }
+  });
+}
+
+// 앱 초기화 함수
+async function init() {
+  initLandingPage();
+
+  // Supabase Auth 상태 실시간 감지
+  onAuthStateChange((event, session) => {
+    renderAppForSession(session);
+  });
+
+  // 초기 세션 체크
+  const user = await getCurrentUser();
+  const session = user ? { user } : null;
+  renderAppForSession(session);
+}
+
+// Start App
+init();

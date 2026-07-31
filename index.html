@@ -3,16 +3,199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>(사)아름다운사람들 견적 자동생성기 및 엑셀 다운로드</title>
+  <title>(사)아름다운사람들 인쇄 견적 자동생성기</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <!-- CSS -->
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
-  <div id="app" class="app-container">
+
+  <!-- ==================== 1. LANDING PAGE VIEW ==================== -->
+  <div id="landing-app" class="landing-container" style="display: none;">
+    <!-- Landing Header -->
+    <header class="landing-header">
+      <div class="landing-nav">
+        <div class="brand">
+          <div class="logo-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-title">(사)아름다운사람들</span>
+            <span class="brand-sub">스마트 인쇄 견적 시스템</span>
+          </div>
+        </div>
+        <div class="landing-nav-actions">
+          <button class="btn btn-outline js-open-auth" data-tab="login">로그인</button>
+          <button class="btn btn-primary js-open-auth" data-tab="register">회원가입</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span> 2026 차세대 인쇄 견적 자동화 솔루션
+        </div>
+        <h1 class="hero-title">
+          복잡한 인쇄 견적 단 1초,<br />
+          <span class="gradient-text">완벽한 Excel 견적서</span> 자동 생성
+        </h1>
+        <p class="hero-description">
+          경인쇄, 옵셋, 디지털 인쇄까지 세분화된 단가 공식 적용.<br />
+          실시간 계산 프리뷰부터 원본 Excel 공식이 보존된 파일 다운로드까지 스마트하게 경험해보세요.
+        </p>
+        <div class="hero-cta-group">
+          <button class="btn btn-primary btn-large js-open-auth" data-tab="register">
+            🚀 무료로 견적 시작하기
+          </button>
+          <button class="btn btn-secondary btn-large js-open-auth" data-tab="login">
+            기존 계정으로 로그인
+          </button>
+        </div>
+      </div>
+
+      <!-- Hero Visual Card Floating Preview -->
+      <div class="hero-visual">
+        <div class="visual-card-glass">
+          <div class="visual-card-header">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+            <span class="card-title-preview">견적 자동 생성 미리보기</span>
+          </div>
+          <div class="visual-card-body">
+            <div class="preview-item">
+              <span>제작 부수</span>
+              <strong>1,000 부</strong>
+            </div>
+            <div class="preview-item">
+              <span>인쇄 방식</span>
+              <strong class="tag-badge">옵셋 10절</strong>
+            </div>
+            <div class="preview-item highlight">
+              <span>최종 합계 (VAT 포함)</span>
+              <strong class="price-text">1,250,000 원</strong>
+            </div>
+            <div class="preview-excel-badge">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              수정 가능한 Excel 수식 템플릿 포함
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+      <div class="section-header">
+        <h2>스마트 인쇄 견적 시스템의 핵심 특징</h2>
+        <p>인쇄 방식별 정밀 계산 알고리즘과 엑셀 원본 보존 기술을 제공합니다.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>경인쇄 전문 계산</h3>
+          <p>마스터/소량 인쇄를 위한 도수, 코팅, 조판생략 감액 등 맞춤형 인쇄 단가 공식을 지원합니다.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🏭</div>
+          <h3>옵셋 인쇄 대량 계산</h3>
+          <p>대량 인쇄 시 필요한 10절/16절 판형, 후가공(에폭시/박인쇄), 관리비 및 이윤율을 자동으로 연산합니다.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3>디지털 & 실사 출력</h3>
+          <p>책자 편집뿐만 아니라 X배너, 현수막, 명패 등 디지털 실사 출력 단가 계산까지 원스톱 지원합니다.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon">📊</div>
+          <h3>Excel 파일 자동 생성</h3>
+          <p>다운로드한 Excel 파일 내부의 셀 수식(Formula)과 서식이 유지되어 즉시 수정 및 보고가 가능합니다.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Landing Footer -->
+    <footer class="landing-footer">
+      <p>© 2026 (사)아름다운사람들 견적 자동생성 시스템. All rights reserved.</p>
+    </footer>
+  </div>
+
+
+  <!-- ==================== 2. AUTH MODAL ==================== -->
+  <div id="auth-modal" class="modal-backdrop">
+    <div class="modal-container">
+      <button id="close-auth-modal" class="modal-close-btn">&times;</button>
+      
+      <div class="modal-header">
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" data-mode="login">로그인</button>
+          <button class="auth-tab-btn" data-mode="register">회원가입</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        <!-- 알림 메시지 -->
+        <div id="auth-error-msg" class="auth-alert alert-danger" style="display: none;"></div>
+        <div id="auth-success-msg" class="auth-alert alert-success" style="display: none;"></div>
+
+        <!-- 로그인 폼 -->
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-email">이메일 주소</label>
+            <input type="email" id="login-email" placeholder="example@domain.com" required />
+          </div>
+          <div class="form-group">
+            <label for="login-password">비밀번호</label>
+            <input type="password" id="login-password" placeholder="비밀번호 입력" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">로그인</button>
+        </form>
+
+        <!-- 회원가입 폼 -->
+        <form id="register-form" style="display: none;">
+          <div class="form-group">
+            <label for="reg-name">이름 / 업체명</label>
+            <input type="text" id="reg-name" placeholder="홍길동 또는 (주)아름다운사람들" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-email">이메일 주소</label>
+            <input type="email" id="reg-email" placeholder="example@domain.com" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-password">비밀번호</label>
+            <input type="password" id="reg-password" placeholder="6자리 이상 비밀번호" minlength="6" required />
+          </div>
+          <div class="form-group">
+            <label for="reg-password-confirm">비밀번호 확인</label>
+            <input type="password" id="reg-password-confirm" placeholder="비밀번호 재입력" minlength="6" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">회원가입 완료</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==================== 3. QUOTATION GENERATOR MAIN APP ==================== -->
+  <div id="quotation-app" class="app-container" style="display: none;">
     <!-- Header -->
     <header class="header">
       <div class="brand">
@@ -30,8 +213,16 @@
           <p>스마트한 인쇄 견적 계산 및 수정 가능한 Excel 파일 자동 다운로드</p>
         </div>
       </div>
-      <div class="header-badge">
-        <span class="pulse-dot"></span> 자동 계산 활성화
+
+      <!-- Header User Profile & SignOut -->
+      <div class="header-right">
+        <div class="user-profile-badge">
+          <span class="user-avatar-icon">👤</span>
+          <span id="user-display-name">사용자</span> 님
+        </div>
+        <button id="btn-logout" class="btn btn-secondary btn-small">
+          🚪 로그아웃
+        </button>
       </div>
     </header>
 
@@ -129,7 +320,7 @@
             </div>
           </div>
 
-          <!-- 경인쇄 전용: 표지 인쇄 도수 및 코팅 옵션 선택 (경인쇄 선택 시 표시) -->
+          <!-- 경인쇄 전용: 표지 인쇄 도수 및 코팅 옵션 선택 -->
           <div class="form-row" id="group-kyung-cover-options" style="display: none;">
             <div class="form-group">
               <label>표지 인쇄 도수 <span class="unit">(경인쇄 전용)</span></label>
@@ -160,7 +351,7 @@
             </div>
           </div>
 
-          <!-- 경인쇄 전용: 표지디자인 옵션 선택 (경인쇄 선택 시 표시) -->
+          <!-- 경인쇄 전용: 표지디자인 옵션 선택 -->
           <div class="form-group" id="group-kyung-cover-design" style="display: none;">
             <label>표지디자인 옵션 선택 <span class="unit">(경인쇄 전용)</span></label>
             <div class="checkbox-group">
@@ -171,7 +362,7 @@
             </div>
           </div>
 
-          <!-- 경인쇄 전용: 이미지컷작업 옵션 선택 (경인쇄 선택 시 표시) -->
+          <!-- 경인쇄 전용: 이미지컷작업 옵션 선택 -->
           <div class="form-group" id="group-kyung-image-cut" style="display: none;">
             <label>이미지컷작업 옵션 선택 <span class="unit">(경인쇄 전용)</span></label>
             <div class="checkbox-group" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
@@ -187,7 +378,7 @@
             </div>
           </div>
 
-          <!-- 경인쇄 전용: 조판생략 감액 옵션 (경인쇄 선택 시 표시) -->
+          <!-- 경인쇄 전용: 조판생략 감액 옵션 -->
           <div class="form-group" id="group-kyung-discount" style="display: none;">
             <label for="kyungDiscount">조판생략 감액 선택</label>
             <select id="kyungDiscount" class="form-select">
@@ -199,7 +390,7 @@
             </select>
           </div>
 
-          <!-- 디지털 인쇄 전용: 컬러 면수/흑백 면수 및 추가 옵션 선택 (디지털 선택 시 표시) -->
+          <!-- 디지털 인쇄 전용 -->
           <div class="form-group" id="group-digital-options" style="display: none;">
             <div class="form-row" style="margin-bottom: 12px;">
               <div class="form-group">
@@ -286,13 +477,13 @@
             </div>
           </div>
 
-          <!-- 커스텀 감액 금액 입력 (직접 입력 선택 시 노출) -->
+          <!-- 커스텀 감액 금액 입력 -->
           <div class="form-group" id="group-kyung-custom-discount" style="display: none;">
             <label for="kyungCustomDiscount">직접 입력 감액 금액 <span class="unit">(원)</span></label>
             <input type="number" id="kyungCustomDiscount" min="0" step="100" value="3500" placeholder="예: 3500" />
           </div>
 
-          <!-- 옵셋 인쇄 전용: 표지 인쇄도수 선택 (옵셋 선택 시 표시) -->
+          <!-- 옵셋 인쇄 전용 -->
           <div class="form-group" id="group-offset-cover-type">
             <label for="offsetCoverType">표지 인쇄 도수 선택 <span class="unit">(옵셋 전용)</span></label>
             <select id="offsetCoverType" class="form-select">
@@ -302,7 +493,6 @@
             </select>
           </div>
 
-          <!-- 옵셋 인쇄 전용: 표지디자인 및 내지편집 옵션 선택 (옵셋 선택 시 표시) -->
           <div class="form-group" id="group-offset-design-options">
             <label>디자인/편집 옵션 선택 <span class="unit">(옵셋 전용)</span></label>
             <div class="checkbox-group">
@@ -317,7 +507,6 @@
             </div>
           </div>
 
-          <!-- 옵셋 인쇄 전용: 후가공 옵션 선택 (옵셋 선택 시 표시) -->
           <div class="form-group" id="group-offset-postprocessing">
             <label>후가공 옵션 선택 <span class="unit">(옵셋 전용)</span></label>
             <div class="checkbox-group">
@@ -332,7 +521,6 @@
             </div>
           </div>
 
-          <!-- 옵셋 인쇄 전용: 일반관리비 및 이윤 입력 (옵셋 선택 시 표시) -->
           <div class="form-row" id="group-offset-rates">
             <div class="form-group">
               <label for="overheadRate">일반관리비 <span class="unit">(%)</span> <span class="required">*</span></label>
@@ -345,7 +533,6 @@
             </div>
           </div>
 
-          <!-- 할인율 입력 -->
           <div class="form-group" id="group-discount-rate">
             <label for="discountRate">할인율 <span class="unit">(%)</span> <span class="required">*</span></label>
             <input type="number" id="discountRate" min="1" max="100" step="1" value="85" placeholder="예: 85" required />

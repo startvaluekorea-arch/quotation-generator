@@ -211,10 +211,10 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
     sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
   }
 
-  // stylesXml 내 G16 서식 코드를 소수점 첫째자리 자릿수 늘림(0.0) 서식으로 변경
+  // stylesXml 내 G16 서식 코드를 " × " 0.0 서식으로 변경
   if (stylesXml) {
-    stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;\\\s*#,##0(?:\.0)?"/g, 'formatCode="0.0"');
-    stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;\s*#,##0(?:\.0)?"/g, 'formatCode="0.0"');
+    stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;[\s\\]*#,##0(?:\.0)?"/g, 'formatCode="&quot; × &quot; 0.0"');
+    stylesXml = stylesXml.replace(/formatCode="0\.0"/g, 'formatCode="&quot; × &quot; 0.0"');
   }
 
   return { sheetXml, stylesXml };

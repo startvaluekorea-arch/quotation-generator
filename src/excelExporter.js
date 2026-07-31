@@ -124,6 +124,46 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
   return sheetXml;
 }
 
+/**
+ * styles.xml 내의 특정 cellXf index(xfIndex)의 alignment 정렬 변경
+ */
+function updateXfAlignment(stylesXml, xfIndex, horizontal = 'center', vertical = 'center') {
+  if (!stylesXml) return stylesXml;
+  const cellXfsMatch = stylesXml.match(/(<cellXfs[^>]*>)(.*?)(<\/cellXfs>)/s);
+  if (!cellXfsMatch) return stylesXml;
+
+  let prefix = cellXfsMatch[1];
+  let inner = cellXfsMatch[2];
+  let suffix = cellXfsMatch[3];
+
+  let count = 0;
+  inner = inner.replace(/(<xf [^>]*\/>|<xf [^>]*>.*?<\/xf>)/gs, (match) => {
+    if (count === xfIndex) {
+      count++;
+      let updated = match;
+      if (updated.includes('<alignment')) {
+        updated = updated.replace(/<alignment[^>]*\/>/, `<alignment horizontal="${horizontal}" vertical="${vertical}"/>`);
+        updated = updated.replace(/<alignment[^>]*>.*?<\/alignment>/s, `<alignment horizontal="${horizontal}" vertical="${vertical}"/>`);
+      } else {
+        updated = updated.replace(/applyAlignment="[^"]*"/, 'applyAlignment="1"');
+        if (!updated.includes('applyAlignment=')) {
+          updated = updated.replace('<xf ', '<xf applyAlignment="1" ');
+        }
+        if (updated.endsWith('/>')) {
+          updated = updated.replace('/>', `><alignment horizontal="${horizontal}" vertical="${vertical}"/></xf>`);
+        } else {
+          updated = updated.replace('</xf>', `<alignment horizontal="${horizontal}" vertical="${vertical}"/></xf>`);
+        }
+      }
+      return updated;
+    }
+    count++;
+    return match;
+  });
+
+  return stylesXml.replace(cellXfsMatch[0], prefix + inner + suffix);
+}
+
 function processKyungExcel(sheetXml, params, stylesXml = null) {
   const {
     size,
@@ -215,6 +255,9 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
   if (stylesXml) {
     stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;[\s\\]*#,##0(?:\.0)?"/g, 'formatCode="&quot; × &quot; 0.0"');
     stylesXml = stylesXml.replace(/formatCode="0\.0"/g, 'formatCode="&quot; × &quot; 0.0"');
+
+    // C16 셀(xfIndex: 49)을 상하좌우 완벽 가운데 정렬(horizontal="center", vertical="center")로 설정
+    stylesXml = updateXfAlignment(stylesXml, 49, 'center', 'center');
   }
 
   return { sheetXml, stylesXml };

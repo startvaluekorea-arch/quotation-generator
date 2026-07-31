@@ -481,17 +481,21 @@ function processOffsetExcel(sheetXml, params) {
   if (optOffsetCoverDesign) {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 20, false);
     sheetXml = updateCellInSheetXml(sheetXml, 'F20', 1, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'K12', '', true);
   } else {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 20, true);
     sheetXml = updateCellInSheetXml(sheetXml, 'F20', 0, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'K12', '조판×', true);
   }
 
   if (optOffsetInnerEdit) {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 21, false);
     sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F21', 'L13');
+    sheetXml = updateCellInSheetXml(sheetXml, 'K13', '', true);
   } else {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 21, true);
     sheetXml = updateCellInSheetXml(sheetXml, 'F21', 0, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'K13', '편집×', true);
   }
 
   // 표지 인쇄도수 (C22, C24, D22, D24, F22, F24) 설정

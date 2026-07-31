@@ -256,7 +256,7 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
 
   // 19행 (이미지 컷 작업)
   const numImageCutQty = Number(params.kyungImageCutQty) || 0;
-  const imageCutPrice = customPrices.kyungImageCutPrice !== undefined ? Number(customPrices.kyungImageCutPrice) : 3000;
+  const imageCutPrice = customPrices.kyungImageCutPrice !== undefined ? Number(customPrices.kyungImageCutPrice) : 30000;
 
   if (numImageCutQty >= 1) {
     sheetXml = setRowHiddenInSheetXml(sheetXml, 19, false);

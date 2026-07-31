@@ -91,7 +91,7 @@ export function calculateKyung(params) {
 
   // 19행 (이미지컷작업)
   const numImageCutQty = Number(params.kyungImageCutQty) || 0;
-  const imageCutPrice = customPrices.kyungImageCutPrice !== undefined ? Number(customPrices.kyungImageCutPrice) : 3000;
+  const imageCutPrice = customPrices.kyungImageCutPrice !== undefined ? Number(customPrices.kyungImageCutPrice) : 30000;
   if (numImageCutQty >= 1) {
     const i19 = numImageCutQty * imageCutPrice;
     items.push({

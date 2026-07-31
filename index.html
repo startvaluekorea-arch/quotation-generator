@@ -294,23 +294,12 @@
 
           <!-- 옵셋 인쇄 전용: 표지 인쇄도수 선택 (옵셋 선택 시 표시) -->
           <div class="form-group" id="group-offset-cover-type">
-            <label>표지 인쇄 도수 <span class="unit">(옵셋 전용)</span></label>
-            <div class="segmented-control">
-              <input type="radio" name="offsetCoverType" id="offset-cover-single" value="표지단면4도" checked />
-              <label for="offset-cover-single" class="segment-label center-align">
-                <span class="radio-title">표지단면4도</span>
-              </label>
-
-              <input type="radio" name="offsetCoverType" id="offset-cover-double-4" value="표지양면4도" />
-              <label for="offset-cover-double-4" class="segment-label center-align">
-                <span class="radio-title">표지양면4도</span>
-              </label>
-
-              <input type="radio" name="offsetCoverType" id="offset-cover-double-41" value="표지양면4/1도" />
-              <label for="offset-cover-double-41" class="segment-label center-align">
-                <span class="radio-title">표지양면4/1도</span>
-              </label>
-            </div>
+            <label for="offsetCoverType">표지 인쇄 도수 선택 <span class="unit">(옵셋 전용)</span></label>
+            <select id="offsetCoverType" class="form-select">
+              <option value="표지단면4도" selected>표지단면4도</option>
+              <option value="표지양면4도">표지양면4도</option>
+              <option value="표지양면4/1도">표지양면4/1도</option>
+            </select>
           </div>
 
           <!-- 옵셋 인쇄 전용: 후가공 옵션 선택 (옵셋 선택 시 표시) -->

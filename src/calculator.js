@@ -200,7 +200,7 @@ export function calculateOffset(params) {
   const f23 = roundUp(pages / 16, 0) * 4;
   const j23 = round(f23 * h23);
 
-  const f24 = 4;
+  const f24 = f22;
   const j24 = round(f24 * h24);
 
   const f25 = f23;

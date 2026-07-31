@@ -48,6 +48,7 @@ const kyungCustomDiscountGroup = document.getElementById('group-kyung-custom-dis
 const kyungCustomDiscountInput = document.getElementById('kyungCustomDiscount');
 
 const offsetCoverTypeGroup = document.getElementById('group-offset-cover-type');
+const offsetCoverTypeSelect = document.getElementById('offsetCoverType');
 const offsetPostprocessingGroup = document.getElementById('group-offset-postprocessing');
 const optEpoxyCheck = document.getElementById('opt-epoxy');
 const optFoilCheck = document.getElementById('opt-foil');
@@ -289,7 +290,7 @@ function getQuotationParams() {
     const profitRate = parseInt(profitRateInput.value, 10) || 20;
     const optEpoxy = optEpoxyCheck ? optEpoxyCheck.checked : false;
     const optFoil = optFoilCheck ? optFoilCheck.checked : false;
-    const offsetCoverType = getSelectedRadioValue('offsetCoverType') || '표지단면4도';
+    const offsetCoverType = offsetCoverTypeSelect ? offsetCoverTypeSelect.value : '표지단면4도';
 
     return {
       ...baseParams,
@@ -523,7 +524,13 @@ if (kyungImageCutQtyInput) {
   });
 }
 
-document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"], input[name="offsetCoverType"]').forEach(el => {
+if (offsetCoverTypeSelect) {
+  offsetCoverTypeSelect.addEventListener('change', () => {
+    updateFullPreview();
+  });
+}
+
+document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"]').forEach(el => {
   el.addEventListener('change', () => {
     updateFullPreview();
   });

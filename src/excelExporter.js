@@ -524,9 +524,35 @@ function processOffsetExcel(sheetXml, params) {
   if (customPrices.innerPrintPrice !== undefined) {
     sheetXml = updateCellInSheetXml(sheetXml, 'H25', Number(customPrices.innerPrintPrice), false);
   }
+  // 무선제본 부수 구간별 F26(수량/수식), G26(단위), H26(단가) 설정
+  let h26BindingPrice;
   if (customPrices.bindingPrice !== undefined) {
-    sheetXml = updateCellInSheetXml(sheetXml, 'H26', Number(customPrices.bindingPrice), false);
+    h26BindingPrice = Number(customPrices.bindingPrice);
+  } else {
+    if (numQuantity < 100) {
+      h26BindingPrice = 290000;
+    } else if (numQuantity < 200) {
+      h26BindingPrice = 2900;
+    } else if (numQuantity < 400) {
+      h26BindingPrice = 2400;
+    } else if (numQuantity < 800) {
+      h26BindingPrice = 1900;
+    } else if (numQuantity < 1000) {
+      h26BindingPrice = 1400;
+    } else {
+      h26BindingPrice = 900;
+    }
   }
+
+  if (numQuantity < 100) {
+    sheetXml = updateCellInSheetXml(sheetXml, 'F26', 1, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'G26', '식', true);
+  } else {
+    sheetXml = updateCellFormulaInSheetXml(sheetXml, 'F26', 'G10');
+    sheetXml = updateCellInSheetXml(sheetXml, 'G26', '부', true);
+  }
+  sheetXml = updateCellInSheetXml(sheetXml, 'H26', h26BindingPrice, false);
+
   if (customPrices.epoxyPrice !== undefined) {
     sheetXml = updateCellInSheetXml(sheetXml, 'H27', Number(customPrices.epoxyPrice), false);
   }

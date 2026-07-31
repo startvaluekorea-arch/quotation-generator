@@ -174,7 +174,6 @@ export function calculateOffset(params) {
   const h23 = customPrices.innerPlatePrice !== undefined ? Number(customPrices.innerPlatePrice) : h22;
   const h24 = customPrices.coverPrintPrice !== undefined ? Number(customPrices.coverPrintPrice) : h23;
   const h25 = customPrices.innerPrintPrice !== undefined ? Number(customPrices.innerPrintPrice) : h24;
-  const h26 = customPrices.bindingPrice !== undefined ? Number(customPrices.bindingPrice) : 250000;
   const h27 = customPrices.epoxyPrice !== undefined ? Number(customPrices.epoxyPrice) : 400000;
   const h28 = customPrices.foilPrice !== undefined ? Number(customPrices.foilPrice) : 400000;
   const h30 = customPrices.coatingPrice !== undefined ? Number(customPrices.coatingPrice) : 180000;
@@ -209,7 +208,44 @@ export function calculateOffset(params) {
   const f25 = f23;
   const j25 = round(f25 * h25);
 
-  const f26 = 1;
+  // 무선제본 부수 구간별 단가 및 수량 계산
+  let f26, bindingUnit, h26;
+  if (customPrices.bindingPrice !== undefined) {
+    h26 = Number(customPrices.bindingPrice);
+    if (quantity < 100) {
+      f26 = 1;
+      bindingUnit = '식';
+    } else {
+      f26 = quantity;
+      bindingUnit = '부';
+    }
+  } else {
+    if (quantity < 100) {
+      f26 = 1;
+      bindingUnit = '식';
+      h26 = 290000;
+    } else if (quantity < 200) {
+      f26 = quantity;
+      bindingUnit = '부';
+      h26 = 2900;
+    } else if (quantity < 400) {
+      f26 = quantity;
+      bindingUnit = '부';
+      h26 = 2400;
+    } else if (quantity < 800) {
+      f26 = quantity;
+      bindingUnit = '부';
+      h26 = 1900;
+    } else if (quantity < 1000) {
+      f26 = quantity;
+      bindingUnit = '부';
+      h26 = 1400;
+    } else {
+      f26 = quantity;
+      bindingUnit = '부';
+      h26 = 900;
+    }
+  }
   const j26 = round(f26 * h26);
 
   const f27 = optEpoxy ? 1 : 0;
@@ -230,7 +266,7 @@ export function calculateOffset(params) {
     { key: 'innerPlatePrice', name: '인쇄판비 (내지)', qty: f23, unit: '판', unitPrice: h23, amount: j23, editable: true },
     { key: 'coverPrintPrice', name: `인쇄 (${coverTypeLabel})`, qty: f24, unit: '판', unitPrice: h24, amount: j24, editable: true },
     { key: 'innerPrintPrice', name: '인쇄 (내지)', qty: f25, unit: '판', unitPrice: h25, amount: j25, editable: true },
-    { key: 'bindingPrice', name: '무선제본', qty: f26, unit: '식', unitPrice: h26, amount: j26, editable: true }
+    { key: 'bindingPrice', name: '무선제본', qty: f26, unit: bindingUnit, unitPrice: h26, amount: j26, editable: true }
   ];
 
   if (optEpoxy) {

@@ -17,6 +17,9 @@ const kyungCoverOptionsGroup = document.getElementById('group-kyung-cover-option
 const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design');
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
 
+const kyungImageCutGroup = document.getElementById('group-kyung-image-cut');
+const kyungImageCutQtyInput = document.getElementById('kyungImageCutQty');
+
 const digitalOptionsGroup = document.getElementById('group-digital-options');
 const digitalColorPagesInput = document.getElementById('digitalColorPages');
 const digitalBWPagesInput = document.getElementById('digitalBWPages');
@@ -151,6 +154,7 @@ function toggleModeOptions() {
   if (type === '경인쇄') {
     if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'flex';
     kyungCoverDesignGroup.style.display = 'flex';
+    if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'flex';
     kyungDiscountGroup.style.display = 'flex';
     digitalOptionsGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'none';
@@ -164,6 +168,7 @@ function toggleModeOptions() {
   } else if (type === '디지털') {
     if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'none';
     kyungCoverDesignGroup.style.display = 'none';
+    if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
     digitalOptionsGroup.style.display = 'flex';
@@ -173,6 +178,7 @@ function toggleModeOptions() {
   } else {
     if (kyungCoverOptionsGroup) kyungCoverOptionsGroup.style.display = 'none';
     kyungCoverDesignGroup.style.display = 'none';
+    if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'none';
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
     digitalOptionsGroup.style.display = 'none';
@@ -222,6 +228,7 @@ function getQuotationParams() {
     const discountRate = parseInt(discountRateInput.value, 10) || 80;
     const kyungDiscount = getActiveKyungDiscount();
     const optKyungCoverDesign = optKyungCoverDesignCheck ? optKyungCoverDesignCheck.checked : false;
+    const kyungImageCutQty = kyungImageCutQtyInput ? parseInt(kyungImageCutQtyInput.value, 10) || 0 : 0;
     const kyungCoverType = getSelectedRadioValue('kyungCoverType') || '컬러표지';
     const kyungCoatingType = getSelectedRadioValue('kyungCoatingType') || '무광코팅';
 
@@ -230,6 +237,7 @@ function getQuotationParams() {
       discountRate,
       kyungDiscount,
       optKyungCoverDesign,
+      kyungImageCutQty,
       kyungCoverType,
       kyungCoatingType
     };
@@ -495,6 +503,12 @@ function toggleDigitalSubOptions() {
     });
   }
 });
+
+if (kyungImageCutQtyInput) {
+  kyungImageCutQtyInput.addEventListener('input', () => {
+    updateFullPreview();
+  });
+}
 
 document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"]').forEach(el => {
   el.addEventListener('change', () => {

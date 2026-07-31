@@ -254,6 +254,20 @@ function processKyungExcel(sheetXml, params, stylesXml = null) {
     sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
   }
 
+  // 19행 (이미지 컷 작업)
+  const numImageCutQty = Number(params.kyungImageCutQty) || 0;
+  const imageCutPrice = customPrices.kyungImageCutPrice !== undefined ? Number(customPrices.kyungImageCutPrice) : 3000;
+
+  if (numImageCutQty >= 1) {
+    sheetXml = setRowHiddenInSheetXml(sheetXml, 19, false);
+    sheetXml = updateCellInSheetXml(sheetXml, 'A19', '컷작업', true);
+    sheetXml = updateCellInSheetXml(sheetXml, 'D19', `${numImageCutQty}x ${imageCutPrice.toLocaleString()}`, true);
+    sheetXml = updateCellInSheetXml(sheetXml, 'I19', numImageCutQty * imageCutPrice, false);
+  } else {
+    sheetXml = setRowHiddenInSheetXml(sheetXml, 19, true);
+    sheetXml = updateCellInSheetXml(sheetXml, 'I19', 0, false);
+  }
+
   // stylesXml 내 G16 서식 코드를 " × " 0.0 서식으로 변경
   if (stylesXml) {
     stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;[\s\\]*#,##0(?:\.0)?"/g, 'formatCode="&quot; × &quot; 0.0"');

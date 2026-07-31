@@ -89,6 +89,23 @@ export function calculateKyung(params) {
     items.push({ key: 'kyungCoverDesignPrice', name: '표지디자인', qty: 1, unit: '식', unitPrice: coverDesignPrice, amount: coverDesignPrice, note: '', editable: true });
   }
 
+  // 19행 (이미지컷작업)
+  const numImageCutQty = Number(params.kyungImageCutQty) || 0;
+  const imageCutPrice = customPrices.kyungImageCutPrice !== undefined ? Number(customPrices.kyungImageCutPrice) : 3000;
+  if (numImageCutQty >= 1) {
+    const i19 = numImageCutQty * imageCutPrice;
+    items.push({
+      key: 'kyungImageCutPrice',
+      name: '컷작업',
+      qty: numImageCutQty,
+      unit: '컷',
+      unitPrice: imageCutPrice,
+      amount: round(i19),
+      note: `${numImageCutQty}컷 x ${imageCutPrice.toLocaleString()}원`,
+      editable: true
+    });
+  }
+
   const subTotal = items.reduce((acc, cur) => acc + cur.amount, 0);
   const totalMargin = round(subTotal * 1.0);
   const truncation = getTruncation(totalMargin);

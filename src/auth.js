@@ -8,11 +8,14 @@ function handleAuthError(error, defaultMsg) {
   console.error('Supabase Auth Raw Error:', error);
   const msg = error.message || error.toString() || '';
 
+  if (msg.includes('rate limit') || error.code === 'over_email_send_rate_limit') {
+    throw new Error('이메일 발송 횟수 제한(Rate Limit)을 초과했습니다. 이미 가입 시도를 하셨다면 [로그인] 탭에서 로그인을 시도하시거나, 약 5~10분 후 다시 시도해주세요.');
+  }
   if (msg.includes('Failed to fetch') || msg.includes('fetch failed') || msg.includes('NetworkError') || error.name === 'TypeError') {
     throw new Error(`Supabase 서버 연결에 실패했습니다. (원인: ${msg}) 브라우저 콘솔 및 서버 주소를 확인해주세요.`);
   }
   if (msg.includes('User already registered') || msg.includes('already exists')) {
-    throw new Error('이미 등록된 이메일 주소입니다. 로그인해 주세요.');
+    throw new Error('이미 등록된 이메일 주소입니다. [로그인] 탭에서 로그인해 주세요.');
   }
   if (msg.includes('Invalid login credentials')) {
     throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');

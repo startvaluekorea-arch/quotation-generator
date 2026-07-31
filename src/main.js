@@ -47,6 +47,7 @@ const kyungDiscountGroup = document.getElementById('group-kyung-discount');
 const kyungCustomDiscountGroup = document.getElementById('group-kyung-custom-discount');
 const kyungCustomDiscountInput = document.getElementById('kyungCustomDiscount');
 
+const offsetCoverTypeGroup = document.getElementById('group-offset-cover-type');
 const offsetPostprocessingGroup = document.getElementById('group-offset-postprocessing');
 const optEpoxyCheck = document.getElementById('opt-epoxy');
 const optFoilCheck = document.getElementById('opt-foil');
@@ -159,6 +160,7 @@ function toggleModeOptions() {
     if (kyungImageCutGroup) kyungImageCutGroup.style.display = 'flex';
     kyungDiscountGroup.style.display = 'flex';
     digitalOptionsGroup.style.display = 'none';
+    if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'flex';
@@ -174,6 +176,7 @@ function toggleModeOptions() {
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
     digitalOptionsGroup.style.display = 'flex';
+    if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'none';
     offsetPostprocessingGroup.style.display = 'none';
     offsetRatesGroup.style.display = 'none';
     if (discountRateGroup) discountRateGroup.style.display = 'none';
@@ -184,6 +187,7 @@ function toggleModeOptions() {
     kyungDiscountGroup.style.display = 'none';
     kyungCustomDiscountGroup.style.display = 'none';
     digitalOptionsGroup.style.display = 'none';
+    if (offsetCoverTypeGroup) offsetCoverTypeGroup.style.display = 'flex';
     offsetPostprocessingGroup.style.display = 'flex';
     offsetRatesGroup.style.display = 'flex';
     if (discountRateGroup) discountRateGroup.style.display = 'flex';
@@ -285,6 +289,7 @@ function getQuotationParams() {
     const profitRate = parseInt(profitRateInput.value, 10) || 20;
     const optEpoxy = optEpoxyCheck ? optEpoxyCheck.checked : false;
     const optFoil = optFoilCheck ? optFoilCheck.checked : false;
+    const offsetCoverType = getSelectedRadioValue('offsetCoverType') || '표지단면4도';
 
     return {
       ...baseParams,
@@ -292,7 +297,8 @@ function getQuotationParams() {
       overheadRate,
       profitRate,
       optEpoxy,
-      optFoil
+      optFoil,
+      offsetCoverType
     };
   }
 }
@@ -517,7 +523,7 @@ if (kyungImageCutQtyInput) {
   });
 }
 
-document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"]').forEach(el => {
+document.querySelectorAll('input[name="kyungCoverType"], input[name="kyungCoatingType"], input[name="offsetCoverType"]').forEach(el => {
   el.addEventListener('change', () => {
     updateFullPreview();
   });

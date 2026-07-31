@@ -188,7 +188,13 @@ export function calculateOffset(params) {
   const f21 = pages;
   const j21 = round(f21 * h21);
 
-  const f22 = 4;
+  const offsetCoverType = params.offsetCoverType || '표지단면4도';
+  let f22 = 4;
+  if (offsetCoverType === '표지양면4도') {
+    f22 = 8;
+  } else if (offsetCoverType === '표지양면4/1도') {
+    f22 = 5;
+  }
   const j22 = round(f22 * h22);
 
   const f23 = roundUp(pages / 16, 0) * 4;

@@ -171,10 +171,20 @@
             </div>
           </div>
 
-          <!-- 경인쇄 전용: 이미지컷작업 수량 입력 (경인쇄 선택 시 표시) -->
+          <!-- 경인쇄 전용: 이미지컷작업 옵션 선택 (경인쇄 선택 시 표시) -->
           <div class="form-group" id="group-kyung-image-cut" style="display: none;">
-            <label for="kyungImageCutQty">이미지컷작업 수량 <span class="unit">(경인쇄 전용, 컷)</span></label>
-            <input type="number" id="kyungImageCutQty" min="0" step="1" value="0" placeholder="예: 0" />
+            <label>이미지컷작업 옵션 선택 <span class="unit">(경인쇄 전용)</span></label>
+            <div class="checkbox-group" style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+              <label class="checkbox-label">
+                <input type="checkbox" id="opt-kyung-image-cut" />
+                <span class="checkbox-text">이미지컷작업</span>
+              </label>
+              <div id="container-kyung-image-cut-qty" style="display: none; align-items: center; gap: 6px;">
+                <label for="kyungImageCutQty" style="font-size: 13px; margin: 0;">수량:</label>
+                <input type="number" id="kyungImageCutQty" min="1" step="1" value="1" style="width: 80px; padding: 6px 10px;" />
+                <span style="font-size: 13px;">컷</span>
+              </div>
+            </div>
           </div>
 
           <!-- 경인쇄 전용: 조판생략 감액 옵션 (경인쇄 선택 시 표시) -->

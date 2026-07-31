@@ -18,6 +18,8 @@ const kyungCoverDesignGroup = document.getElementById('group-kyung-cover-design'
 const optKyungCoverDesignCheck = document.getElementById('opt-kyung-cover-design');
 
 const kyungImageCutGroup = document.getElementById('group-kyung-image-cut');
+const optKyungImageCutCheck = document.getElementById('opt-kyung-image-cut');
+const kyungImageCutQtyContainer = document.getElementById('container-kyung-image-cut-qty');
 const kyungImageCutQtyInput = document.getElementById('kyungImageCutQty');
 
 const digitalOptionsGroup = document.getElementById('group-digital-options');
@@ -228,7 +230,8 @@ function getQuotationParams() {
     const discountRate = parseInt(discountRateInput.value, 10) || 80;
     const kyungDiscount = getActiveKyungDiscount();
     const optKyungCoverDesign = optKyungCoverDesignCheck ? optKyungCoverDesignCheck.checked : false;
-    const kyungImageCutQty = kyungImageCutQtyInput ? parseInt(kyungImageCutQtyInput.value, 10) || 0 : 0;
+    const optKyungImageCut = optKyungImageCutCheck ? optKyungImageCutCheck.checked : false;
+    const kyungImageCutQty = optKyungImageCut ? (kyungImageCutQtyInput ? parseInt(kyungImageCutQtyInput.value, 10) || 1 : 1) : 0;
     const kyungCoverType = getSelectedRadioValue('kyungCoverType') || '컬러표지';
     const kyungCoatingType = getSelectedRadioValue('kyungCoatingType') || '무광코팅';
 
@@ -237,6 +240,7 @@ function getQuotationParams() {
       discountRate,
       kyungDiscount,
       optKyungCoverDesign,
+      optKyungImageCut,
       kyungImageCutQty,
       kyungCoverType,
       kyungCoatingType
@@ -483,7 +487,7 @@ if (digitalBWPagesInput) {
   });
 }
 
-function toggleDigitalSubOptions() {
+function toggleSubOptions() {
   if (optDigitalXBannerCheck && digitalXBannerGroup) {
     digitalXBannerGroup.style.display = optDigitalXBannerCheck.checked ? 'flex' : 'none';
   }
@@ -493,12 +497,15 @@ function toggleDigitalSubOptions() {
   if (optDigitalNameplateCheck && digitalNameplateGroup) {
     digitalNameplateGroup.style.display = optDigitalNameplateCheck.checked ? 'block' : 'none';
   }
+  if (optKyungImageCutCheck && kyungImageCutQtyContainer) {
+    kyungImageCutQtyContainer.style.display = optKyungImageCutCheck.checked ? 'flex' : 'none';
+  }
 }
 
-[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck, optDigitalXBannerCheck, optDigitalBannerCheck, optDigitalNameplateCheck].forEach(el => {
+[optEpoxyCheck, optFoilCheck, optKyungCoverDesignCheck, optKyungImageCutCheck, optDigitalCoverTypeCheck, optDigitalInnerEditCheck, optDigitalXBannerCheck, optDigitalBannerCheck, optDigitalNameplateCheck].forEach(el => {
   if (el) {
     el.addEventListener('change', () => {
-      toggleDigitalSubOptions();
+      toggleSubOptions();
       updateFullPreview();
     });
   }

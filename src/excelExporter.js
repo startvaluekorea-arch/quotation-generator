@@ -124,7 +124,7 @@ function setRowHiddenInSheetXml(sheetXml, rowNum, isHidden) {
   return sheetXml;
 }
 
-function processKyungExcel(sheetXml, params) {
+function processKyungExcel(sheetXml, params, stylesXml = null) {
   const {
     size,
     quantity,
@@ -174,7 +174,7 @@ function processKyungExcel(sheetXml, params) {
   // C16: 표지 인쇄도수/코팅 텍스트 주입 (sample 원본 서식 유지)
   sheetXml = updateCellInSheetXml(sheetXml, 'C16', c16Text, true);
 
-  // G16: 표지 수량 주입 (sample 원본 서식 유지, 소수점 첫째자리 소수점 표기 보장)
+  // G16: 표지 수량 주입 (sample 원본 서식 유지, 소수점 첫째자리 표기 보장)
   sheetXml = updateCellInSheetXml(sheetXml, 'G16', Number(coverQty).toFixed(1), false);
 
   sheetXml = updateCellInSheetXml(sheetXml, 'D17', numKyungDiscount, false);
@@ -211,7 +211,13 @@ function processKyungExcel(sheetXml, params) {
     sheetXml = updateCellInSheetXml(sheetXml, 'D18', 0, false);
   }
 
-  return sheetXml;
+  // stylesXml 내 G16 서식 코드를 소수점 첫째자리 자릿수 늘림(0.0) 서식으로 변경
+  if (stylesXml) {
+    stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;\\\s*#,##0(?:\.0)?"/g, 'formatCode="0.0"');
+    stylesXml = stylesXml.replace(/formatCode="&quot;\s*×\s*&quot;\s*#,##0(?:\.0)?"/g, 'formatCode="0.0"');
+  }
+
+  return { sheetXml, stylesXml };
 }
 
 function processDigitalExcel(sheetXml, params) {
@@ -506,7 +512,11 @@ export async function downloadExcelQuotation(params) {
 
   // 인쇄방식별 독립 서브 헬퍼 함수로 완전 격리 처리
   if (type === '경인쇄') {
-    sheetXml = processKyungExcel(sheetXml, params);
+    const kyungResult = processKyungExcel(sheetXml, params, stylesXml);
+    sheetXml = kyungResult.sheetXml;
+    if (kyungResult.stylesXml) {
+      stylesXml = kyungResult.stylesXml;
+    }
   } else if (type === '디지털') {
     sheetXml = processDigitalExcel(sheetXml, params);
   } else {
@@ -527,6 +537,9 @@ export async function downloadExcelQuotation(params) {
   // 수정된 xml 저장
   zip.file('xl/worksheets/sheet1.xml', sheetXml);
   zip.file('xl/workbook.xml', workbookXml);
+  if (stylesXml) {
+    zip.file('xl/styles.xml', stylesXml);
+  }
 
   // 최종 엑셀 바이너리 Blob 생성
   const zipBuffer = await zip.generateAsync({
